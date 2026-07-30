@@ -22,8 +22,14 @@ const preview = {
   },
   tags: ["autodocs"],
   decorators: [
+    // The canvas is light (see preview.css) but the vendored token defaults are
+    // dark-first, so without a scheme attribute the buttons would render
+    // near-white text on a near-white surface. Both attributes are set on
+    // purpose: `data-mui-color-scheme` is what the Obsidian sheet itself keys
+    // off, `data-theme` is this library's alias for hosts not running MUI —
+    // setting both exercises the pair that ships.
     (Story) => (
-      <div data-theme="light">
+      <div data-mui-color-scheme="light" data-theme="light">
         <Story />
       </div>
     ),

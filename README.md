@@ -66,9 +66,15 @@ Anything else is forwarded to the underlying element.
 
 ## Token contract
 
-`styles.css` ships standalone fallbacks for every token inside `@layer ib-button-tokens`. An **unlayered** rule always beats a layered one regardless of specificity or source order, so a host design system that defines these in plain CSS wins automatically — there is no "import this first" rule to get wrong. The component rules themselves are deliberately *unlayered*, so they beat unlayered global resets such as Bootstrap's `button {}` on specificity.
+**Your token source is primary; `styles.css` is the backup.** Every token the component reads is aliased once on `.ib-btn` as `var(--your-token, <vendored default>)`. A CSS fallback applies only to an *absent* custom property, so wherever you define the token it wins — no import order to get right, no `@layer`, and nothing you have to load first. Where you don't define it, the vendored value renders the button anyway.
+
+`styles.css` declares **nothing on `:root`** and imports nothing. It will not hand your page a `--border` or a `--font-body`, and it makes no network request. Component rules are deliberately *unlayered*, so they beat unlayered global resets such as Bootstrap's `button {}` on specificity.
+
+The vendored defaults are a generated copy of the [Obsidian token sheet](https://cdn.thinktalentws48.click/starterkit/colors_and_type.css) — `pnpm sync:tokens` refetches it, `pnpm sync:tokens:check` fails when the copy has drifted. Only tokens the CSS actually uses are vendored; the seed list is scraped from `styles.css` itself, so it cannot fall out of date. If your app already loads that sheet, every default is overridden and none of this is reachable.
 
 Tokens read: `--{mint,electric,amber,rose,cobalt,white,fg1}-channel` · `--gradient-{primary,secondary,amber,danger,cobalt}` · `--{mint,electric,amber,cobalt}-text` · `--fg1` `--fg2` `--fg-muted` `--border` · `--btn-ghost-bg{,-hover}` `--btn-outline-border{,-hover}` · `--radius-chip` `--radius-pill` · `--font-body`
+
+Light mode is keyed off `[data-mui-color-scheme="light"]` (what the Obsidian sheet uses) **or** `[data-theme="light"]` on any ancestor; with neither attribute present, `prefers-color-scheme` decides.
 
 Two tokens the package owns rather than borrows:
 
