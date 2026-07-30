@@ -1,0 +1,374 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   @ib/button — the entire visual definition of <Button>.
+   Import once, anywhere:  import "@ib/button/styles.css";
+
+   TWO LAYER DECISIONS, both load-order independent:
+
+   1. Token fallbacks live inside `@layer ib-button-tokens`. An UNLAYERED rule
+      always beats a layered one regardless of specificity or source order, so a
+      host design system that defines --mint-channel in plain CSS wins
+      automatically. No "import this first" instruction to get wrong.
+
+   2. Component rules are deliberately UNLAYERED. They must beat unlayered
+      global resets (Bootstrap's `button {}`, Tailwind preflight) — and an
+      unlayered class selector does, on specificity.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer ib-button-tokens {
+  /* Standalone defaults only. Every one of these is expected to be overridden
+     by the host's token source. Channel triplets are "r g b" so alpha can be
+     composed as rgb(var(--x-channel) / 0.4) instead of an 8-digit hex. */
+  :root {
+    --mint-channel: 179 211 53;
+    --electric-channel: 139 92 246;
+    --amber-channel: 245 158 11;
+    --rose-channel: 244 63 94;
+    --cobalt-channel: 0 138 255;
+    --white-channel: 255 255 255;
+    --fg1-channel: 240 242 255;
+
+    --gradient-primary: linear-gradient(135deg, #b3d335, #0ea5e9);
+    --gradient-secondary: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    --gradient-amber: linear-gradient(135deg, #f59e0b, #d97706);
+    --gradient-danger: linear-gradient(135deg, #f43f5e, #e11d48);
+    --gradient-cobalt: linear-gradient(145deg, #37a3fe, #006acc);
+
+    --mint-text: #c8e05e;
+    --electric-text: #a78bfa;
+    --amber-text: #fbbf24;
+    --cobalt-text: #4db3ff;
+
+    --fg1: #f0f2ff;
+    --fg2: #8b93b5;
+    --fg-muted: rgba(255, 255, 255, 0.45);
+    --border: rgba(255, 255, 255, 0.08);
+
+    --btn-ghost-bg: rgba(255, 255, 255, 0.05);
+    --btn-ghost-bg-hover: rgba(255, 255, 255, 0.1);
+    --btn-outline-border: rgba(255, 255, 255, 0.34);
+    --btn-outline-border-hover: rgba(255, 255, 255, 0.55);
+
+    --radius-chip: 16px;
+    --radius-pill: 9999px;
+    --font-body: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  }
+
+  /* Light-scheme fallbacks. Three selectors so the package works standalone
+     under any of the common conventions; a host that owns its own scheme
+     switching overrides all of this from an unlayered rule anyway. */
+  @media (prefers-color-scheme: light) {
+    :root {
+      --fg1: #0d1020;
+      --fg2: #4a5171;
+      --fg1-channel: 13 16 32;
+      --fg-muted: rgba(0, 0, 0, 0.45);
+      --border: rgba(0, 0, 0, 0.14);
+      --btn-ghost-bg: rgba(0, 0, 0, 0.03);
+      --btn-ghost-bg-hover: rgba(0, 0, 0, 0.06);
+      --btn-outline-border: rgba(0, 0, 0, 0.24);
+      --btn-outline-border-hover: rgba(0, 0, 0, 0.42);
+    }
+  }
+
+  [data-mui-color-scheme="light"],
+  [data-theme="light"] {
+    --fg1: #0d1020;
+    --fg2: #4a5171;
+    --fg1-channel: 13 16 32;
+    --fg-muted: rgba(0, 0, 0, 0.45);
+    --border: rgba(0, 0, 0, 0.14);
+    --btn-ghost-bg: rgba(0, 0, 0, 0.03);
+    --btn-ghost-bg-hover: rgba(0, 0, 0, 0.06);
+    --btn-outline-border: rgba(0, 0, 0, 0.24);
+    --btn-outline-border-hover: rgba(0, 0, 0, 0.42);
+  }
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+
+.ib-btn {
+  /* Overridden per tone. Neutral values so a missing data-tone still renders. */
+  --ib-ch: var(--fg1-channel, 240 242 255);
+  --ib-grad: none;
+  --ib-accent: var(--fg2, #8b93b5);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  margin: 0;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    filter 0.2s,
+    box-shadow 0.2s,
+    border-color 0.2s,
+    color 0.2s,
+    background-color 0.2s,
+    opacity 0.2s,
+    transform 0.12s;
+}
+
+.ib-btn > svg {
+  flex-shrink: 0;
+}
+
+.ib-btn[data-full-width] {
+  width: 100%;
+}
+
+/* ── Axis: tone ───────────────────────────────────────────────────────────── */
+/* A tone publishes three custom properties and styles nothing itself. Adding a
+   tone is one rule here and it composes with every fill for free. */
+
+.ib-btn[data-tone="mint"] {
+  --ib-ch: var(--mint-channel);
+  --ib-grad: var(--gradient-primary);
+  --ib-accent: var(--mint-text, rgb(var(--mint-channel)));
+}
+.ib-btn[data-tone="violet"] {
+  --ib-ch: var(--electric-channel);
+  --ib-grad: var(--gradient-secondary);
+  --ib-accent: var(--electric-text, rgb(var(--electric-channel)));
+}
+.ib-btn[data-tone="amber"] {
+  --ib-ch: var(--amber-channel);
+  --ib-grad: var(--gradient-amber);
+  --ib-accent: var(--amber-text, rgb(var(--amber-channel)));
+}
+.ib-btn[data-tone="danger"] {
+  --ib-ch: var(--rose-channel);
+  --ib-grad: var(--gradient-danger);
+  --ib-accent: rgb(var(--rose-channel));
+}
+.ib-btn[data-tone="blue"] {
+  --ib-ch: var(--cobalt-channel);
+  --ib-grad: var(--gradient-cobalt);
+  --ib-accent: var(--cobalt-text, rgb(var(--cobalt-channel)));
+}
+.ib-btn[data-tone="neutral"] {
+  --ib-ch: var(--fg1-channel);
+  --ib-grad: none;
+  --ib-accent: var(--fg2);
+}
+
+/* ── Axis: size ───────────────────────────────────────────────────────────── */
+/* min-height keeps every size at or above the 24px WCAG 2.5.8 target minimum
+   even when a caller drops the label to a single glyph. */
+
+.ib-btn[data-size="sm"] {
+  padding: 6px 14px;
+  font-size: 12px;
+  min-height: 28px;
+}
+.ib-btn[data-size="md"] {
+  padding: 10px 20px;
+  font-size: 14px;
+  min-height: 40px;
+}
+.ib-btn[data-size="lg"] {
+  padding: 13px 28px;
+  font-size: 15px;
+  min-height: 46px;
+}
+
+/* ── Axis: shape ──────────────────────────────────────────────────────────── */
+
+.ib-btn[data-shape="chip"] {
+  border-radius: var(--radius-chip, 16px);
+}
+.ib-btn[data-shape="pill"] {
+  border-radius: var(--radius-pill, 9999px);
+}
+
+/* ── Axis: fill ───────────────────────────────────────────────────────────── */
+/* Each fill consumes --ib-ch / --ib-grad / --ib-accent and knows nothing about
+   which tone supplied them. Hover rules are gated on [data-interactive], which
+   the component renders only while the button can actually be pressed. */
+
+.ib-btn[data-fill="solid"] {
+  background-image: var(--ib-grad);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 20px rgb(var(--ib-ch) / 0.4);
+}
+.ib-btn[data-fill="solid"][data-interactive]:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 28px rgb(var(--ib-ch) / 0.5);
+}
+
+.ib-btn[data-fill="ghost"] {
+  background-color: var(--btn-ghost-bg);
+  border-color: var(--btn-outline-border);
+  color: var(--fg2);
+}
+.ib-btn[data-fill="ghost"][data-interactive]:hover {
+  background-color: var(--btn-ghost-bg-hover);
+  border-color: var(--btn-outline-border-hover);
+  color: var(--fg1);
+}
+
+.ib-btn[data-fill="outline"] {
+  background-color: transparent;
+  border: 2px solid rgb(var(--ib-ch));
+  color: var(--ib-accent);
+}
+/* The hover wash is derived from the tone's own channel. The pre-library button
+   drew this border from --cobalt but washed it with --electric on hover — a blue
+   outline that flashed violet. Deriving both from --ib-ch makes that class of
+   mismatch unrepresentable. */
+.ib-btn[data-fill="outline"][data-interactive]:hover {
+  background-color: rgb(var(--ib-ch) / 0.1);
+  box-shadow: 0 0 14px rgb(var(--ib-ch) / 0.3);
+}
+
+.ib-btn[data-fill="bare"] {
+  background: none;
+  border-color: transparent;
+  color: var(--ib-accent);
+}
+.ib-btn[data-fill="bare"][data-interactive]:hover {
+  background-color: rgb(var(--ib-ch) / 0.08);
+  color: var(--fg1);
+}
+
+/* Sits on top of a coloured surface (gradient hero, featured card), so it is
+   deliberately tone-independent: always white-on-whatever. */
+.ib-btn[data-fill="translucent"] {
+  background-color: rgb(var(--white-channel, 255 255 255) / 0.15);
+  border: 2px solid rgb(var(--white-channel, 255 255 255) / 0.22);
+  color: #fff;
+}
+.ib-btn[data-fill="translucent"][data-interactive]:hover {
+  background-color: rgb(var(--white-channel, 255 255 255) / 0.22);
+}
+
+/* ── Press ────────────────────────────────────────────────────────────────── */
+/* Not expressible at all with JS hover handlers. */
+
+.ib-btn[data-interactive]:active {
+  transform: translateY(1px);
+}
+
+/* ── Focus ────────────────────────────────────────────────────────────────── */
+/* :focus-visible, not :focus — a mouse click must not leave a ring, and a
+   keyboard user must always get one. Solid fills ring in --fg1 because a
+   mint ring on a mint gradient is invisible; the 2px offset puts it on the
+   page background either way. */
+
+.ib-btn:focus-visible {
+  outline: 2px solid var(--ib-btn-focus-ring, rgb(var(--ib-ch) / 0.95));
+  outline-offset: 2px;
+}
+.ib-btn[data-fill="solid"]:focus-visible {
+  outline-color: var(--ib-btn-focus-ring, var(--fg1, #fff));
+}
+
+/* ── Disabled ─────────────────────────────────────────────────────────────── */
+/* Both selectors every time: a <button> uses :disabled, a disabled <a> can only
+   carry aria-disabled. :not([data-loading]) keeps a loading button off the dead
+   treatment even though it also renders the disabled attribute. */
+
+.ib-btn:disabled,
+.ib-btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  box-shadow: none;
+  filter: none;
+  transform: none;
+}
+
+.ib-btn[aria-disabled="true"] {
+  pointer-events: none;
+}
+
+/* Solid keeps a wash of its own hue so identity survives — a disabled danger
+   button still reads rose instead of collapsing into the same grey as every
+   other disabled solid. The low alpha plus the muted label carries "inert",
+   which is why these stay at 0.9 opacity and remain legible. */
+.ib-btn[data-fill="solid"]:disabled:not([data-loading]),
+.ib-btn[data-fill="solid"][aria-disabled="true"]:not([data-loading]) {
+  background-image: none;
+  background-color: rgb(var(--ib-ch) / 0.12);
+  color: rgb(var(--ib-ch) / 0.72);
+  border-color: rgb(var(--ib-ch) / 0.26);
+  opacity: 0.9;
+}
+
+.ib-btn:not([data-fill="solid"]):disabled:not([data-loading]),
+.ib-btn:not([data-fill="solid"])[aria-disabled="true"]:not([data-loading]) {
+  color: var(--fg-muted);
+  opacity: 0.5;
+}
+
+/* ── Loading ──────────────────────────────────────────────────────────────── */
+
+.ib-btn[data-loading] {
+  cursor: progress;
+  opacity: 0.92;
+}
+
+.ib-btn__spinner {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border: 2px solid rgb(var(--white-channel, 255 255 255) / 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: ib-btn-spin 0.7s linear infinite;
+}
+
+/* Transparent fills need a currentColor spinner or it vanishes on the page bg. */
+.ib-btn:not([data-fill="solid"]):not([data-fill="translucent"]) .ib-btn__spinner {
+  border-color: var(--border);
+  border-top-color: currentColor;
+}
+
+@keyframes ib-btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────────────── */
+/* The spinner is slowed rather than stopped: it communicates pending state, so
+   removing it entirely would remove information, not just decoration. */
+
+@media (prefers-reduced-motion: reduce) {
+  .ib-btn {
+    transition: none;
+  }
+  .ib-btn[data-interactive]:active {
+    transform: none;
+  }
+  .ib-btn__spinner {
+    animation-duration: 1.6s;
+  }
+}
+
+/* ── Forced colors (Windows high contrast) ────────────────────────────────── */
+/* Gradients and alpha washes are dropped by the OS, which would leave a
+   borderless block of ButtonFace. A system border restores the affordance.
+   No forced-color-adjust override — the user's palette must win. */
+
+@media (forced-colors: active) {
+  .ib-btn {
+    border: 1px solid ButtonText;
+  }
+  .ib-btn:focus-visible {
+    outline: 2px solid Highlight;
+  }
+  .ib-btn:disabled,
+  .ib-btn[aria-disabled="true"] {
+    color: GrayText;
+    border-color: GrayText;
+    opacity: 1;
+  }
+}
