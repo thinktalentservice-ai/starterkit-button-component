@@ -68,8 +68,20 @@ describe("axis resolution", () => {
 
   it("degrades an unknown preset to the defaults instead of rendering unstyled", () => {
     // Reachable from plain JS consumers, where the union type is not enforced.
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     render(<Button variant={"nope" as never}>Go</Button>);
     expect(attrs(screen.getByRole("button"))).toMatchObject({ tone: "mint", fill: "solid" });
+    // Silent degradation would hide a typo forever; prop-types used to catch it.
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('Unknown variant "nope"'));
+    warn.mockRestore();
+  });
+
+  it("does not warn for a valid preset — presets are supported API, not deprecated", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    render(<Button variant="pill-filled">Go</Button>);
+    render(<Button variant="ghost">Go</Button>);
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
   });
 
   it("keeps the ib-btn class when a caller passes className", () => {

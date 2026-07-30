@@ -47,15 +47,41 @@ export const PRESETS = {
 
 export type ButtonPreset = keyof typeof PRESETS;
 
+// Declared locally rather than pulling in @types/node: this is a browser
+// package, and every bundler replaces process.env.NODE_ENV at build time. The
+// typeof guard keeps it safe in a runtime that has no `process` at all — at the
+// cost of staying quiet there, which is the right way to fail for a warning.
+declare const process: { env?: Record<string, string | undefined> } | undefined;
+
+const isDev = () => typeof process !== "undefined" && process?.env?.NODE_ENV !== "production";
+
+const warned = new Set<string>();
+
 /**
  * Explicit axis props always beat the preset, and the preset always beats the
  * default. Unknown preset strings (this package is consumed from plain JS as
  * well as TS) degrade to the defaults instead of rendering an unstyled button.
+ *
+ * Degrading silently is not good enough on its own: `variant="dnager"` would
+ * render a perfectly normal mint button and nothing would ever say why. This
+ * package dropped prop-types in favour of compile-time types, so a JS caller
+ * has no other backstop — hence a dev-only warning, once per bad value. Valid
+ * presets never warn; they are supported API, not deprecated.
  */
 export function resolveAxes(
   explicit: Partial<ButtonAxes>,
   preset: ButtonPreset | undefined,
 ): ButtonAxes {
+  if (preset !== undefined && PRESETS[preset] === undefined && isDev() && !warned.has(preset)) {
+    warned.add(preset);
+    console.warn(
+      `[@ib/button] Unknown variant "${preset}" — falling back to ` +
+        `tone="${DEFAULT_AXES.tone}" fill="${DEFAULT_AXES.fill}". ` +
+        `Valid: ${Object.keys(PRESETS).join(", ")}. ` +
+        `Or set tone/fill/shape directly.`,
+    );
+  }
+
   const base: Partial<ButtonAxes> = (preset && PRESETS[preset]) || {};
   return {
     tone: explicit.tone ?? base.tone ?? DEFAULT_AXES.tone,
