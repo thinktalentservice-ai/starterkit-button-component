@@ -4,6 +4,8 @@ The Obsidian design-system button, extracted from the Next.js starterkit into a 
 
 Zero runtime dependencies. React is a peer dep. All styling is CSS — the component renders data attributes and nothing else.
 
+[View the live Storybook](https://thinktalentservice-ai.github.io/starterkit-button-component/)
+
 ```bash
 pnpm add @ib/button
 ```
@@ -96,11 +98,15 @@ The only JS-computed attribute is `data-interactive`, which is state rather than
 ```bash
 pnpm install
 pnpm verify      # tsc --noEmit && vitest run && tsup
+pnpm storybook   # local component workshop on port 6006
+pnpm build-storybook  # refresh the GitHub Pages site in docs/
 ```
 
 `tsc` in strict mode is the type gate; there is no ESLint here on purpose — the version pinned in the consuming starterkit is broken, and a second lint config that disagrees with it is worse than none.
 
 The test suite asserts behaviour and the DOM contract the CSS selects on, not appearance. Rename `data-fill` and every rule in `styles.css` silently stops matching — no type checker catches that, so the tests pin it.
+
+GitHub Pages publishes directly from `main:/docs`. Commit the regenerated `docs/` directory whenever a story or component visual changes.
 
 ## Not in v1
 
