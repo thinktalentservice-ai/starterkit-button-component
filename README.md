@@ -1,4 +1,4 @@
-# @ib/button
+# @devopsnext/starterkit-button-component
 
 The Obsidian design-system button, extracted from the Next.js starterkit into a standalone package.
 
@@ -7,12 +7,12 @@ Zero runtime dependencies. React is a peer dep. All styling is CSS — the compo
 [View the live Storybook](https://thinktalentservice-ai.github.io/starterkit-button-component/)
 
 ```bash
-pnpm add @ib/button
+pnpm add @devopsnext/starterkit-button-component
 ```
 
 ```jsx
-import { Button } from "@ib/button";
-import "@ib/button/styles.css"; // once, at your app root
+import { Button } from "@devopsnext/starterkit-button-component";
+import "@devopsnext/starterkit-button-component/styles.css"; // once, at your app root
 
 <Button tone="mint" fill="solid" size="lg">Deploy</Button>
 <Button variant="ghost" startIcon={<Icon />}>Cancel</Button>

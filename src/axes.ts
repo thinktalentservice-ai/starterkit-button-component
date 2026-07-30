@@ -75,7 +75,7 @@ export function resolveAxes(
   if (preset !== undefined && PRESETS[preset] === undefined && isDev() && !warned.has(preset)) {
     warned.add(preset);
     console.warn(
-      `[@ib/button] Unknown variant "${preset}" — falling back to ` +
+      `[@devopsnext/starterkit-button-component] Unknown variant "${preset}" — falling back to ` +
         `tone="${DEFAULT_AXES.tone}" fill="${DEFAULT_AXES.fill}". ` +
         `Valid: ${Object.keys(PRESETS).join(", ")}. ` +
         `Or set tone/fill/shape directly.`,

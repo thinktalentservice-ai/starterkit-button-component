@@ -1,5 +1,5 @@
 {
-  "name": "@ib/button",
+  "name": "@devopsnext/starterkit-button-component",
   "version": "1.0.0",
   "description": "Obsidian design-system Button — token-driven, CSS-styled, zero runtime dependencies.",
   "license": "MIT",
