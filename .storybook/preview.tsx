@@ -4,6 +4,7 @@ import "./preview.css";
 
 const preview = {
   parameters: {
+    layout: "fullscreen",
     controls: {
       expanded: true,
       matchers: {

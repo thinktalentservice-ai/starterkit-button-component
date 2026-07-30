@@ -69,7 +69,6 @@ const meta = {
   component: Button,
   tags: ["autodocs"],
   parameters: {
-    layout: "centered",
     docs: {
       description: {
         component:

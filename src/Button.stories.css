@@ -1,5 +1,5 @@
 .ib-story {
-  width: min(72rem, 86vw);
+  width: 100%;
   color: #1a1d2e;
   font-family: var(--font-body, "Plus Jakarta Sans", sans-serif);
 }
@@ -168,10 +168,6 @@
 }
 
 @media (max-width: 680px) {
-  .ib-story {
-    width: min(100%, 92vw);
-  }
-
   .ib-story__hero {
     grid-template-columns: 1fr;
   }

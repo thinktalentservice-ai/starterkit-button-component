@@ -26,3 +26,7 @@ body {
 .docs-story {
   background: #f6f7f3;
 }
+
+.sbdocs-wrapper .sbdocs-content {
+  max-width: none;
+}
