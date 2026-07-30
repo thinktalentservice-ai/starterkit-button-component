@@ -29,7 +29,9 @@ There is no variant lookup table. Every visual decision belongs to exactly one a
 | `shape` | `chip` `pill`                                              | `chip`   |
 | `size`  | `sm` `md` `lg`                                             | `md`     |
 
-A `tone` publishes `--ib-ch` (an `r g b` channel triplet), `--ib-grad` and `--ib-accent`. A `fill` consumes them and knows nothing about which tone supplied them. `translucent` is deliberately tone-independent — it is white-on-whatever, for use on top of a coloured surface.
+A `tone` publishes `--ib-ch` (an `r g b` channel triplet), `--ib-grad` and `--ib-accent`. A `fill` consumes them and knows nothing about which tone supplied them.
+
+One combination is contextual rather than universal: `translucent` is deliberately tone-independent — white-on-whatever, sized for sitting **on top of a coloured surface** (a gradient hero, a featured card). On a light page background it is white-on-white and will disappear. That is a property of the fill, not a bug to fix in CSS; the package cannot know what is behind it.
 
 ### Presets
 
@@ -66,7 +68,10 @@ Anything else is forwarded to the underlying element.
 
 Tokens read: `--{mint,electric,amber,rose,cobalt,white,fg1}-channel` · `--gradient-{primary,secondary,amber,danger,cobalt}` · `--{mint,electric,amber,cobalt}-text` · `--fg1` `--fg2` `--fg-muted` `--border` · `--btn-ghost-bg{,-hover}` `--btn-outline-border{,-hover}` · `--radius-chip` `--radius-pill` · `--font-body`
 
-Override `--ib-btn-focus-ring` to control the focus ring colour.
+Two tokens the package owns rather than borrows:
+
+- `--ib-btn-focus-ring` — focus ring colour. Unset by default.
+- `--ib-accent-{mint,violet,amber,danger,blue}` — the label colour used by the transparent fills (`outline`, `bare`) **in light mode only**. A design system's `*-text` tokens are tuned as accents on a dark surface: `--mint-text` (#B3D335) lands at about 1.7:1 on white, `--amber-text` at 2.2:1. The old variant table never paired a transparent fill with a brand hue so those combinations were unreachable — the axis model makes all of them reachable, which means they have to be legible. These values are measured, not derived: every tone × `outline`/`bare`/`ghost` combination clears 4.5:1 on the light surface (measured minimum 4.69:1 light, 5.2:1 dark) at the 14px/600 the button uses. Override them if your light surface is not near-white.
 
 ## Why no JS styling
 

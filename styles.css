@@ -53,11 +53,15 @@
     --font-body: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
   }
 
-  /* Light-scheme fallbacks. Three selectors so the package works standalone
-     under any of the common conventions; a host that owns its own scheme
-     switching overrides all of this from an unlayered rule anyway. */
+  /* ── Light scheme ───────────────────────────────────────────────────────
+     The OS-preference block is scoped to a root with NO explicit scheme
+     attribute. Without that guard, a host running dark mode on a
+     light-preference machine would pick up these light values for any token
+     the host does not itself define — which is exactly the --ib-accent-*
+     tokens below. The attribute selectors cover a host that drives the scheme
+     itself; everything else it defines unlayered and wins anyway. */
   @media (prefers-color-scheme: light) {
-    :root {
+    :root:not([data-mui-color-scheme]):not([data-theme]) {
       --fg1: #0d1020;
       --fg2: #4a5171;
       --fg1-channel: 13 16 32;
@@ -67,6 +71,12 @@
       --btn-ghost-bg-hover: rgba(0, 0, 0, 0.06);
       --btn-outline-border: rgba(0, 0, 0, 0.24);
       --btn-outline-border-hover: rgba(0, 0, 0, 0.42);
+
+      --ib-accent-mint: #6b7d20;
+      --ib-accent-violet: #7c3aed;
+      --ib-accent-amber: #b45309;
+      --ib-accent-danger: #e11d48;
+      --ib-accent-blue: #005fb8;
     }
   }
 
@@ -81,6 +91,21 @@
     --btn-ghost-bg-hover: rgba(0, 0, 0, 0.06);
     --btn-outline-border: rgba(0, 0, 0, 0.24);
     --btn-outline-border-hover: rgba(0, 0, 0, 0.42);
+
+    /* Label colour for the transparent fills (outline, bare) in light mode.
+       A design system's `*-text` tokens are tuned as accents on a DARK
+       surface — --mint-text (#B3D335) on white is roughly 1.7:1, --amber-text
+       (#f59e0b) about 2.2:1. The old variant table never paired a transparent
+       fill with a brand hue, so those combinations were unreachable; the axis
+       model makes all of them reachable, which means they have to be legible.
+       Each value below clears 4.5:1 on #fff at the 14px/600 the button uses.
+       Deliberately NOT derived from the tone channel — an alpha or lightness
+       trick cannot guarantee a contrast ratio, only a measured hue can. */
+    --ib-accent-mint: #5c6b1b;
+    --ib-accent-violet: #7c3aed;
+    --ib-accent-amber: #b45309;
+    --ib-accent-danger: #c2183d;
+    --ib-accent-blue: #005fb8;
   }
 }
 
@@ -129,30 +154,34 @@
 /* A tone publishes three custom properties and styles nothing itself. Adding a
    tone is one rule here and it composes with every fill for free. */
 
+/* --ib-accent is the label colour for the transparent fills. It prefers the
+   per-tone --ib-accent-* token (which the light scheme defines with measured
+   on-white contrast) and falls back to the host's accent token, which is the
+   correct choice on a dark surface. */
 .ib-btn[data-tone="mint"] {
   --ib-ch: var(--mint-channel);
   --ib-grad: var(--gradient-primary);
-  --ib-accent: var(--mint-text, rgb(var(--mint-channel)));
+  --ib-accent: var(--ib-accent-mint, var(--mint-text, rgb(var(--mint-channel))));
 }
 .ib-btn[data-tone="violet"] {
   --ib-ch: var(--electric-channel);
   --ib-grad: var(--gradient-secondary);
-  --ib-accent: var(--electric-text, rgb(var(--electric-channel)));
+  --ib-accent: var(--ib-accent-violet, var(--electric-text, rgb(var(--electric-channel))));
 }
 .ib-btn[data-tone="amber"] {
   --ib-ch: var(--amber-channel);
   --ib-grad: var(--gradient-amber);
-  --ib-accent: var(--amber-text, rgb(var(--amber-channel)));
+  --ib-accent: var(--ib-accent-amber, var(--amber-text, rgb(var(--amber-channel))));
 }
 .ib-btn[data-tone="danger"] {
   --ib-ch: var(--rose-channel);
   --ib-grad: var(--gradient-danger);
-  --ib-accent: rgb(var(--rose-channel));
+  --ib-accent: var(--ib-accent-danger, rgb(var(--rose-channel)));
 }
 .ib-btn[data-tone="blue"] {
   --ib-ch: var(--cobalt-channel);
   --ib-grad: var(--gradient-cobalt);
-  --ib-accent: var(--cobalt-text, rgb(var(--cobalt-channel)));
+  --ib-accent: var(--ib-accent-blue, var(--cobalt-text, rgb(var(--cobalt-channel))));
 }
 .ib-btn[data-tone="neutral"] {
   --ib-ch: var(--fg1-channel);
