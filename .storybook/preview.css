@@ -1,20 +1,28 @@
 :root {
   color-scheme: light;
-  font-family: "Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body, "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif);
 }
 
 body {
   margin: 0;
   background:
-    radial-gradient(circle at 15% 10%, rgb(179 211 53 / 0.12), transparent 28rem),
-    radial-gradient(circle at 85% 0%, rgb(139 92 246 / 0.1), transparent 26rem),
-    #f5f6fa;
+    linear-gradient(rgb(22 25 37 / 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(22 25 37 / 0.025) 1px, transparent 1px),
+    radial-gradient(circle at 8% 2%, rgb(179 211 53 / 0.13), transparent 27rem),
+    radial-gradient(circle at 92% 0%, rgb(0 138 255 / 0.09), transparent 24rem),
+    #f6f7f3;
+  background-size:
+    4rem 4rem,
+    4rem 4rem,
+    auto,
+    auto,
+    auto;
 }
 
 .sb-show-main.sb-main-padded {
-  padding: 2.5rem;
+  padding: clamp(1rem, 4vw, 3rem);
 }
 
 .docs-story {
-  background: #f5f6fa;
+  background: #f6f7f3;
 }

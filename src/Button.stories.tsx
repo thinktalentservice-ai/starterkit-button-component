@@ -1,7 +1,9 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button, PRESETS } from "./index";
 import type { ButtonFill, ButtonPreset, ButtonShape, ButtonSize, ButtonTone } from "./index";
+import { Swatch } from "./stories/CodeSwatch";
+import "./Button.stories.css";
 
 const tones: ButtonTone[] = ["mint", "violet", "amber", "danger", "blue", "neutral"];
 const fills: ButtonFill[] = ["solid", "ghost", "outline", "bare"];
@@ -9,50 +11,56 @@ const sizes: ButtonSize[] = ["sm", "md", "lg"];
 const shapes: ButtonShape[] = ["chip", "pill"];
 const presets = Object.keys(PRESETS) as ButtonPreset[];
 
-const gridStyle: CSSProperties = {
-  display: "grid",
-  gap: "1.5rem",
-  minWidth: "min(880px, 82vw)",
-};
-
-const rowStyle: CSSProperties = {
-  display: "flex",
-  flexWrap: "wrap",
-  alignItems: "center",
-  gap: "0.75rem",
-};
-
 function Section({
   title,
   description,
-  inverse = false,
   children,
 }: {
   title: string;
   description?: string;
-  inverse?: boolean;
   children: ReactNode;
 }) {
   return (
-    <section style={{ display: "grid", gap: "0.65rem" }}>
-      <div>
-        <h3 style={{ margin: 0, color: inverse ? "#fff" : "#15182a", fontSize: "0.95rem" }}>
-          {title}
-        </h3>
+    <section className="ib-story-section">
+      <div className="ib-story-section__header">
+        <div>
+          <h3 className="ib-story-section__title">{title}</h3>
         {description ? (
-          <p
-            style={{
-              margin: "0.25rem 0 0",
-              color: inverse ? "rgb(255 255 255 / 0.72)" : "#626984",
-              fontSize: "0.8rem",
-            }}
-          >
-            {description}
-          </p>
+            <p className="ib-story-section__description">{description}</p>
         ) : null}
+        </div>
       </div>
       {children}
     </section>
+  );
+}
+
+function StoryFrame({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: ReactNode;
+}) {
+  return (
+    <main className="ib-story">
+      <header className="ib-story__hero">
+        <div>
+          <p className="ib-story__eyebrow">IB / component specimen</p>
+          <h2 className="ib-story__title">{title}</h2>
+          <p className="ib-story__lede">{description}</p>
+        </div>
+        <div className="ib-story__axes" aria-label="Button design axes">
+          <span>tone</span>
+          <span>fill</span>
+          <span>shape</span>
+          <span>size</span>
+        </div>
+      </header>
+      <div className="ib-story__body">{children}</div>
+    </main>
   );
 }
 
@@ -66,7 +74,10 @@ const meta = {
       description: {
         component:
           "A token-driven, polymorphic button with independent tone, fill, shape, and size axes. " +
-          "Pass `href` to render an anchor; explicit axis props override named presets.",
+          "Pass `href` to render an anchor; explicit axis props override named presets.\n\n" +
+          "Every button below prints its own JSX underneath it — click the code to copy it. " +
+          "The story-level **Show code** panel shows the surrounding loop, so the per-button " +
+          "snippet is the one to copy.",
       },
     },
   },
@@ -119,120 +130,164 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Playground: Story = {};
+export const Playground: Story = {
+  render: ({
+    children,
+    variant,
+    tone,
+    fill,
+    shape,
+    size,
+    href,
+    loading,
+    disabled,
+    fullWidth,
+  }) => (
+    <StoryFrame
+      title="Button workbench"
+      description="Tune the axes in Controls. The specimen and its paste-ready JSX update together."
+    >
+      <Section title="Live specimen" description="Click the dark code panel to copy this exact setup.">
+        <div className="ib-story-grid">
+          <Swatch
+            variant={variant}
+            tone={tone}
+            fill={fill}
+            shape={shape}
+            size={size}
+            href={href}
+            loading={loading}
+            disabled={disabled}
+            fullWidth={fullWidth}
+          >
+            {typeof children === "string" ? children : "Deploy"}
+          </Swatch>
+        </div>
+      </Section>
+    </StoryFrame>
+  ),
+};
 
 export const Presets: Story = {
   render: () => (
-    <div style={gridStyle}>
+    <StoryFrame
+      title="Preset index"
+      description="Named shortcuts for common points in the same four-axis system—useful defaults, never a separate styling API."
+    >
       <Section
         title="Named presets"
         description="Convenience aliases only—each resolves to the same orthogonal axes shown in Controls."
       >
-        <div style={rowStyle}>
+        <div className="ib-story-grid">
           {presets.map((variant) => (
-            <Button key={variant} variant={variant}>
+            <Swatch key={variant} variant={variant}>
               {variant}
-            </Button>
+            </Swatch>
           ))}
         </div>
       </Section>
-    </div>
+    </StoryFrame>
   ),
 };
 
 export const AxisMatrix: Story = {
   render: () => (
-    <div style={gridStyle}>
+    <StoryFrame
+      title="Tone × fill atlas"
+      description="Scan the full visual system by surface treatment. Each specimen exposes the exact JSX responsible for it."
+    >
       {fills.map((fill) => (
         <Section key={fill} title={fill}>
-          <div style={rowStyle}>
+          <div className="ib-story-grid">
             {tones.map((tone) => (
-              <Button key={tone} tone={tone} fill={fill}>
+              <Swatch key={tone} tone={tone} fill={fill}>
                 {tone}
-              </Button>
+              </Swatch>
             ))}
           </div>
         </Section>
       ))}
-    </div>
+    </StoryFrame>
   ),
 };
 
 export const SizesAndShapes: Story = {
   render: () => (
-    <div style={gridStyle}>
+    <StoryFrame
+      title="Geometry scale"
+      description="Compare target size and silhouette without changing the button’s color identity."
+    >
       {shapes.map((shape) => (
         <Section key={shape} title={shape}>
-          <div style={rowStyle}>
+          <div className="ib-story-grid">
             {sizes.map((size) => (
-              <Button key={size} shape={shape} size={size} tone="blue">
+              <Swatch key={size} shape={shape} size={size} tone="blue">
                 {size}
-              </Button>
+              </Swatch>
             ))}
           </div>
         </Section>
       ))}
-    </div>
+    </StoryFrame>
   ),
 };
 
 export const States: Story = {
   render: () => (
-    <div style={gridStyle}>
+    <StoryFrame
+      title="Behavior states"
+      description="Operational states, links, and width behavior shown as real interactive elements—not static approximations."
+    >
       <Section title="Interaction states">
-        <div style={rowStyle}>
-          <Button tone="mint">Ready</Button>
-          <Button tone="violet" loading>
+        <div className="ib-story-grid">
+          <Swatch tone="mint">Ready</Swatch>
+          <Swatch tone="violet" loading>
             Saving
-          </Button>
-          <Button tone="danger" disabled>
+          </Swatch>
+          <Swatch tone="danger" disabled>
             Disabled
-          </Button>
-          <Button href="#button-link" tone="blue" fill="outline">
+          </Swatch>
+          <Swatch href="#button-link" tone="blue" fill="outline">
             Anchor
-          </Button>
-          <Button href="#disabled-link" tone="amber" fill="bare" disabled>
+          </Swatch>
+          <Swatch href="#disabled-link" tone="amber" fill="bare" disabled>
             Disabled anchor
-          </Button>
+          </Swatch>
         </div>
       </Section>
       <Section title="Width">
-        <Button fullWidth tone="blue">
+        <Swatch fullWidth tone="blue">
           Full-width action
-        </Button>
+        </Swatch>
       </Section>
-    </div>
+    </StoryFrame>
   ),
 };
 
 export const ContextualTranslucent: Story = {
   render: () => (
-    <div
-      style={{
-        minWidth: "min(720px, 80vw)",
-        padding: "3rem",
-        borderRadius: "1.5rem",
-        background:
-          "radial-gradient(circle at 15% 0%, rgb(179 211 53 / 0.28), transparent 45%), " +
-          "linear-gradient(135deg, #171a31, #41306f 55%, #006acc)",
-        boxShadow: "0 30px 80px rgb(20 18 40 / 0.28)",
-      }}
+    <StoryFrame
+      title="Context surfaces"
+      description="The translucent fill is tested where it belongs: over an expressive, high-contrast feature surface."
     >
-      <Section
-        title="Translucent on a coloured surface"
-        description="This fill is intentionally white-on-whatever and belongs on heroes or featured cards."
-        inverse
-      >
-        <div style={rowStyle}>
-          <Button fill="translucent">Explore</Button>
-          <Button fill="translucent" shape="pill">
-            View details
-          </Button>
-          <Button fill="translucent" loading>
-            Loading
-          </Button>
-        </div>
-      </Section>
-    </div>
+      <div className="ib-story-context">
+        <Section
+          title="Translucent on a coloured surface"
+          description="This fill is intentionally white-on-whatever and belongs on heroes or featured cards."
+        >
+          <div className="ib-story-grid">
+            <Swatch fill="translucent" inverse>
+              Explore
+            </Swatch>
+            <Swatch fill="translucent" shape="pill" inverse>
+              View details
+            </Swatch>
+            <Swatch fill="translucent" loading inverse>
+              Loading
+            </Swatch>
+          </div>
+        </Section>
+      </div>
+    </StoryFrame>
   ),
 };
