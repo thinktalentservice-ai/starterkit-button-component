@@ -4,7 +4,7 @@
    Storybook's own copy rather than pulling a second one into the bundle. */
 import React from "react";
 import { addons, types, useGlobals } from "storybook/manager-api";
-import { IconButton } from "storybook/internal/components";
+import { ToggleButton } from "storybook/internal/components";
 
 const ADDON_ID = "ib/scheme-toggle";
 
@@ -39,14 +39,15 @@ const SchemeToggle = () => {
   const dark = globals.scheme === "dark";
 
   return (
-    <IconButton
-      active={dark}
-      title={dark ? "Switch to light scheme" : "Switch to dark scheme"}
+    <ToggleButton
+      pressed={dark}
+      ariaLabel={false}
+      tooltip={dark ? "Switch to light scheme" : "Switch to dark scheme"}
       onClick={() => updateGlobals({ scheme: dark ? "light" : "dark" })}
     >
       {dark ? <Moon /> : <Sun />}
       <span style={{ marginLeft: 6 }}>{dark ? "Dark" : "Light"}</span>
-    </IconButton>
+    </ToggleButton>
   );
 };
 
