@@ -76,6 +76,8 @@ Tokens read: `--{mint,electric,amber,rose,cobalt,white,fg1}-channel` · `--gradi
 
 Light mode is keyed off `[data-mui-color-scheme="light"]` (what the Obsidian sheet uses) **or** `[data-theme="light"]` on any ancestor; with neither attribute present, `prefers-color-scheme` decides.
 
+The Storybook toolbar carries a **Light/Dark** button that exercises both attributes. It writes them to `<html>`, not only to the story wrapper — with `<html>` left bare the `prefers-color-scheme` fallback above still matches, so on a machine set to light appearance every button would render light tokens while the workshop claimed to be dark. `?globals=scheme:dark` reproduces the dark state as a shareable link.
+
 Two tokens the package owns rather than borrows:
 
 - `--ib-btn-focus-ring` — focus ring colour. Unset by default.
