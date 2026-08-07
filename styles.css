@@ -323,7 +323,13 @@
 
 .ib-btn[data-fill="solid"] {
   background-image: var(--ib-grad);
-  color: #fff;
+  /* Escape hatch, not a token alias — a light-first brand's gradient can land
+     light enough that a white label fails contrast. Consumer sets
+     `--ib-on-grad` directly (e.g. from the same measured ink the theme
+     package's on-* engine already derives); #fff is right for every dark-first
+     preset today, which is why it stays the default rather than a forced
+     lookup. */
+  color: var(--ib-on-grad, #fff);
   border-color: transparent;
   box-shadow: 0 4px 20px rgb(var(--ib-ch) / 0.4);
 }
@@ -368,11 +374,29 @@
 }
 
 /* Sits on top of a coloured surface (gradient hero, featured card), so it is
-   deliberately tone-independent: always white-on-whatever. */
+   deliberately tone-independent: always white-on-whatever.
+
+   KNOWN LIMIT, not fixed here: the wash below reads --ib-t-white-channel,
+   which does not flip with scheme, so a light-first brand whose hero surface
+   is also light gets a white wash on white. The correct fix is a
+   scheme-flipping --overlay-channel emitted by @devopsnext/starterkit-theme
+   (white-on-dark / near-black-on-light) with --ib-t-white-channel kept as the
+   vendored fallback — but that token does not exist in the theme package or
+   the published CDN sheet yet. Wiring `var(--overlay-channel, var(--ib-t-white-channel))`
+   here today would make `sync:tokens:check` fail in CI, since the sync script
+   throws on any --ib-t-* alias whose raw host name is absent from the live
+   sheet. Sequence: add --overlay-channel to starterkit-theme's resolver →
+   publish it → then wire it in here. */
 .ib-btn[data-fill="translucent"] {
   background-color: rgb(var(--ib-t-white-channel) / 0.15);
   border: 2px solid rgb(var(--ib-t-white-channel) / 0.22);
-  color: #fff;
+  /* Escape hatch, not a token alias — see --ib-on-grad above. Translucent sits
+     on an arbitrary caller-provided surface (gradient hero, featured card), so
+     there is no host token this can derive from automatically; a light-first
+     brand whose hero happens to be light overrides `--ib-on-translucent`
+     directly. #fff stays correct by default because that surface is
+     conventionally dark or saturated. */
+  color: var(--ib-on-translucent, #fff);
 }
 .ib-btn[data-fill="translucent"][data-interactive]:hover {
   background-color: rgb(var(--ib-t-white-channel) / 0.22);
@@ -446,10 +470,19 @@
   width: 14px;
   height: 14px;
   flex-shrink: 0;
+  /* Same --overlay-channel limitation as the translucent wash above — the ring
+     is --ib-t-white-channel and does not flip with scheme yet. */
   border: 2px solid rgb(var(--ib-t-white-channel) / 0.4);
-  border-top-color: #fff;
+  /* Base rule's highlighted edge defaults to the solid-fill ink; overridden
+     per fill below so translucent gets its own escape hatch instead of
+     silently reusing solid's. */
+  border-top-color: var(--ib-on-grad, #fff);
   border-radius: 50%;
   animation: ib-btn-spin 0.7s linear infinite;
+}
+
+.ib-btn[data-fill="translucent"] .ib-btn__spinner {
+  border-top-color: var(--ib-on-translucent, #fff);
 }
 
 /* Transparent fills need a currentColor spinner or it vanishes on the page bg. */
