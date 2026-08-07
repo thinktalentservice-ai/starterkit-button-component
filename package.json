@@ -1,6 +1,6 @@
 {
   "name": "@devopsnext/starterkit-button-component",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Obsidian design-system Button — token-driven, CSS-styled, zero runtime dependencies.",
   "license": "MIT",
   "type": "module",
@@ -31,21 +31,25 @@
     "sync:tokens": "node scripts/sync-tokens.mjs",
     "sync:tokens:check": "node scripts/sync-tokens.mjs --check",
     "typecheck": "tsc --noEmit",
+    "typecheck:brand": "tsc --noEmit -p tsconfig.playwright.json",
     "test": "vitest run",
     "test:watch": "vitest",
-    "verify": "pnpm typecheck && pnpm test && pnpm build"
+    "test:brand": "playwright test",
+    "verify": "pnpm typecheck && pnpm typecheck:brand && pnpm test && pnpm build"
   },
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@storybook/addon-a11y": "^10.5.6",
     "@storybook/addon-docs": "^10.5.6",
     "@storybook/react-vite": "^10.5.6",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "^16.3.0",
+    "@types/node": "^22.10.5",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "axe-core": "^4.10.3",

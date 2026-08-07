@@ -33,7 +33,7 @@ There is no variant lookup table. Every visual decision belongs to exactly one a
 
 A `tone` publishes `--ib-ch` (an `r g b` channel triplet), `--ib-grad` and `--ib-accent`. A `fill` consumes them and knows nothing about which tone supplied them.
 
-One combination is contextual rather than universal: `translucent` is deliberately tone-independent — white-on-whatever, sized for sitting **on top of a coloured surface** (a gradient hero, a featured card). On a light page background it is white-on-white and will disappear. That is a property of the fill, not a bug to fix in CSS; the package cannot know what is behind it.
+One combination is contextual rather than universal: `translucent` is deliberately tone-independent — white-on-whatever by default, sized for sitting **on top of a coloured surface** (a gradient hero, a featured card). On a light page background it is white-on-white and will disappear unless the label is repointed with `--ib-on-translucent` (see below). That is a property of the fill, not a bug to fix in CSS; the package cannot know what is behind it.
 
 ### Presets
 
@@ -78,10 +78,14 @@ Light mode is keyed off `[data-mui-color-scheme="light"]` (what the Obsidian she
 
 The Storybook toolbar carries a **Light/Dark** button that exercises both attributes. It writes them to `<html>`, not only to the story wrapper — with `<html>` left bare the `prefers-color-scheme` fallback above still matches, so on a machine set to light appearance every button would render light tokens while the workshop claimed to be dark. `?globals=scheme:dark` reproduces the dark state as a shareable link.
 
-Two tokens the package owns rather than borrows:
+Tokens the package owns rather than borrows:
 
 - `--ib-btn-focus-ring` — focus ring colour. Unset by default.
 - `--ib-accent-{mint,violet,amber,danger,blue}` — the label colour used by the transparent fills (`outline`, `bare`) **in light mode only**. A design system's `*-text` tokens are tuned as accents on a dark surface: `--mint-text` (#B3D335) lands at about 1.7:1 on white, `--amber-text` at 2.2:1. The old variant table never paired a transparent fill with a brand hue so those combinations were unreachable — the axis model makes all of them reachable, which means they have to be legible. These values are measured, not derived: every tone × `outline`/`bare`/`ghost` combination clears 4.5:1 on the light surface (measured minimum 4.69:1 light, 5.2:1 dark) at the 14px/600 the button uses. Override them if your light surface is not near-white.
+- `--ib-on-grad` — label colour for `data-fill="solid"` and its loading spinner's highlighted edge. Defaults to `#fff`, which is correct against every dark-first preset shipped today. A light-first brand whose gradient lands light enough to wash out white text should set this — e.g. to the same ink its token sheet already computes for gradient text elsewhere.
+- `--ib-on-translucent` — label colour for `data-fill="translucent"` and its loading spinner's highlighted edge. Defaults to `#fff`; translucent is deliberately tone-independent (it sits on whatever coloured surface the caller places it on, not a brand token), so this is a plain escape hatch rather than something derived automatically. Override it if your surface is light.
+
+**Known limitation:** the translucent fill's background wash and border, and the loading spinner's un-highlighted ring, read `--white-channel` at low alpha and do not flip with colour scheme — a light-first brand whose translucent surface is also light gets a wash that's nearly invisible. Fixing this needs a scheme-flipping `--overlay-channel` published by the design system's token sheet, which does not exist yet; tracked as follow-up work, not silently patched around here.
 
 ## Why no JS styling
 
@@ -105,7 +109,8 @@ The only JS-computed attribute is `data-interactive`, which is state rather than
 
 ```bash
 pnpm install
-pnpm verify      # tsc --noEmit && vitest run && tsup
+pnpm verify      # tsc --noEmit && tsc -p tsconfig.playwright.json && vitest run && tsup
+pnpm test:brand  # real-browser brand-injection regression suite (Playwright, not part of `verify`)
 pnpm storybook   # local component workshop on port 6006
 pnpm build-storybook  # refresh the GitHub Pages site in docs/
 ```
