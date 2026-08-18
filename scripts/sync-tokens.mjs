@@ -17,9 +17,9 @@
    Vendored defaults are resolved transitively, so a default never depends on a
    token the host might not have:
 
-       --gradient-primary: linear-gradient(135deg, var(--mint), var(--cyan))
+       --gradient-primary: linear-gradient(135deg, var(--brand-fill), var(--brand-fill-end))
      → var(--gradient-primary, linear-gradient(135deg,
-           var(--mint, #B3D335), var(--cyan, #0ea5e9)))
+           var(--brand-fill, #b3d335), var(--brand-fill-end, #8a9f2a)))
 
    The seed set is scraped from styles.css itself — every `--ib-t-x` a rule
    mentions. Use a new token and the next run vendors it; stop using one and it

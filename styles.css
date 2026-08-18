@@ -46,13 +46,13 @@
 .ib-btn {
   --ib-t-electric: var(--electric, #8b5cf6);
   --ib-t-electric-text: var(--electric-text, #a78bfa);
-  --ib-t-mint: var(--mint, #B3D335);
-  --ib-t-mint-text: var(--mint-text, #C8E05E);
+  --ib-t-mint: var(--mint, #b3d335);
+  --ib-t-mint-text: var(--mint-text, #c8e05e);
   --ib-t-amber-text: var(--amber-text, #fbbf24);
   --ib-t-amber-deep: var(--amber-deep, #d97706);
   --ib-t-rose-deep: var(--rose-deep, #e11d48);
-  --ib-t-cobalt-text: var(--cobalt-text, #4DB3FF);
-  --ib-t-cobalt-deep: var(--cobalt-deep, #006ACC);
+  --ib-t-cobalt-text: var(--cobalt-text, #4db3ff);
+  --ib-t-cobalt-deep: var(--cobalt-deep, #006acc);
   --ib-t-fg1: var(--fg1, #f0f2ff);
   --ib-t-fg2: var(--fg2, #8b93b5);
   --ib-t-fg-muted: var(--fg-muted, rgba(255, 255, 255, 0.45));
@@ -71,11 +71,11 @@
   --ib-t-cobalt-channel: var(--cobalt-channel, 0 138 255);
   --ib-t-fg1-channel: var(--fg1-channel, 240 242 255);
   --ib-t-white-channel: var(--white-channel, 255 255 255);
-  --ib-t-gradient-primary: var(--gradient-primary, linear-gradient(135deg, var(--mint, #B3D335), var(--cyan, #0ea5e9)));
+  --ib-t-gradient-primary: var(--gradient-primary, linear-gradient(135deg, var(--brand-fill, #b3d335), var(--brand-fill-end, #8a9f2a)));
   --ib-t-gradient-secondary: var(--gradient-secondary, linear-gradient(135deg, var(--electric, #8b5cf6), var(--electric-deep, #6d28d9)));
-  --ib-t-gradient-amber: var(--gradient-amber, linear-gradient(135deg, var(--amber-brand, #f59e0b), var(--amber-deep, #d97706)));
+  --ib-t-gradient-amber: var(--gradient-amber, linear-gradient(135deg, var(--amber-fill, #f59e0b), var(--amber-fill-end, #d97706)));
   --ib-t-gradient-danger: var(--gradient-danger, linear-gradient(135deg, var(--rose, #f43f5e), var(--rose-deep, #e11d48)));
-  --ib-t-gradient-cobalt: var(--gradient-cobalt, linear-gradient(145deg, var(--cobalt-light, #37A3FE), var(--cobalt-deep, #006ACC)));
+  --ib-t-gradient-cobalt: var(--gradient-cobalt, linear-gradient(145deg, var(--cobalt-fill, #37a3fe), var(--cobalt-fill-end, #1f7bde)));
 }
 
 /* Light scheme. Brand hues darken on a light surface, so the channels flip with
@@ -84,12 +84,12 @@
 [data-theme="light"] .ib-btn {
   --ib-t-electric: var(--electric, #7c3aed);
   --ib-t-electric-text: var(--electric-text, #8b5cf6);
-  --ib-t-mint: var(--mint, #6B7D20);
-  --ib-t-mint-text: var(--mint-text, #B3D335);
+  --ib-t-mint: var(--mint, #6b7d20);
+  --ib-t-mint-text: var(--mint-text, #b3d335);
   --ib-t-amber-text: var(--amber-text, #f59e0b);
   --ib-t-amber-deep: var(--amber-deep, #b45309);
-  --ib-t-cobalt-text: var(--cobalt-text, #37A3FE);
-  --ib-t-cobalt-deep: var(--cobalt-deep, #005FB8);
+  --ib-t-cobalt-text: var(--cobalt-text, #37a3fe);
+  --ib-t-cobalt-deep: var(--cobalt-deep, #005fb8);
   --ib-t-fg1: var(--fg1, #1a1d2e);
   --ib-t-fg2: var(--fg2, #5a6080);
   --ib-t-fg-muted: var(--fg-muted, rgba(0, 0, 0, 0.45));
@@ -103,10 +103,7 @@
   --ib-t-amber-channel: var(--amber-channel, 217 119 6);
   --ib-t-cobalt-channel: var(--cobalt-channel, 0 106 204);
   --ib-t-fg1-channel: var(--fg1-channel, 26 29 46);
-  --ib-t-gradient-primary: var(--gradient-primary, linear-gradient(135deg, var(--mint, #6B7D20), var(--cyan, #0284c7)));
   --ib-t-gradient-secondary: var(--gradient-secondary, linear-gradient(135deg, var(--electric, #7c3aed), var(--electric-deep, #5b21b6)));
-  --ib-t-gradient-amber: var(--gradient-amber, linear-gradient(135deg, var(--amber-brand, #d97706), var(--amber-deep, #b45309)));
-  --ib-t-gradient-cobalt: var(--gradient-cobalt, linear-gradient(145deg, var(--cobalt-light, #008AFF), var(--cobalt-deep, #005FB8)));
 }
 
 /* Same defaults for a host that ships no scheme attribute at all. Scoped to a
@@ -116,12 +113,12 @@
   :root:not([data-mui-color-scheme]):not([data-theme]) .ib-btn {
     --ib-t-electric: var(--electric, #7c3aed);
     --ib-t-electric-text: var(--electric-text, #8b5cf6);
-    --ib-t-mint: var(--mint, #6B7D20);
-    --ib-t-mint-text: var(--mint-text, #B3D335);
+    --ib-t-mint: var(--mint, #6b7d20);
+    --ib-t-mint-text: var(--mint-text, #b3d335);
     --ib-t-amber-text: var(--amber-text, #f59e0b);
     --ib-t-amber-deep: var(--amber-deep, #b45309);
-    --ib-t-cobalt-text: var(--cobalt-text, #37A3FE);
-    --ib-t-cobalt-deep: var(--cobalt-deep, #005FB8);
+    --ib-t-cobalt-text: var(--cobalt-text, #37a3fe);
+    --ib-t-cobalt-deep: var(--cobalt-deep, #005fb8);
     --ib-t-fg1: var(--fg1, #1a1d2e);
     --ib-t-fg2: var(--fg2, #5a6080);
     --ib-t-fg-muted: var(--fg-muted, rgba(0, 0, 0, 0.45));
@@ -135,10 +132,7 @@
     --ib-t-amber-channel: var(--amber-channel, 217 119 6);
     --ib-t-cobalt-channel: var(--cobalt-channel, 0 106 204);
     --ib-t-fg1-channel: var(--fg1-channel, 26 29 46);
-    --ib-t-gradient-primary: var(--gradient-primary, linear-gradient(135deg, var(--mint, #6B7D20), var(--cyan, #0284c7)));
     --ib-t-gradient-secondary: var(--gradient-secondary, linear-gradient(135deg, var(--electric, #7c3aed), var(--electric-deep, #5b21b6)));
-    --ib-t-gradient-amber: var(--gradient-amber, linear-gradient(135deg, var(--amber-brand, #d97706), var(--amber-deep, #b45309)));
-    --ib-t-gradient-cobalt: var(--gradient-cobalt, linear-gradient(145deg, var(--cobalt-light, #008AFF), var(--cobalt-deep, #005FB8)));
   }
 }
 /* @tokens:end */
