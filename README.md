@@ -14,7 +14,7 @@ pnpm add @devopsnext/starterkit-button-component
 import { Button } from "@devopsnext/starterkit-button-component";
 import "@devopsnext/starterkit-button-component/styles.css"; // once, at your app root
 
-<Button tone="mint" fill="solid" size="lg">Deploy</Button>
+<Button tone="primary" fill="solid" size="lg">Deploy</Button>
 <Button variant="ghost" startIcon={<Icon />}>Cancel</Button>
 <Button href="/docs" variant="pill">Read the docs</Button>
 <Button loading>Saving…</Button>
@@ -24,31 +24,32 @@ import "@devopsnext/starterkit-button-component/styles.css"; // once, at your ap
 
 There is no variant lookup table. Every visual decision belongs to exactly one axis, so a new tone costs one CSS rule and combines with every fill for free.
 
-| Axis    | Values                                                     | Default  |
-| ------- | ---------------------------------------------------------- | -------- |
-| `tone`  | `mint` `violet` `amber` `danger` `blue` `neutral`           | `mint`   |
-| `fill`  | `solid` `ghost` `outline` `bare` `translucent`              | `solid`  |
-| `shape` | `chip` `pill`                                              | `chip`   |
-| `size`  | `sm` `md` `lg`                                             | `md`     |
+| Axis    | Values                                                                  | Default   |
+| ------- | ------------------------------------------------------------------------ | --------- |
+| `tone`  | `primary` `secondary` `accent` `success` `warning` `danger` `neutral`    | `primary` |
+| `fill`  | `solid` `ghost` `outline` `bare` `translucent`                           | `solid`   |
+| `shape` | `chip` `pill`                                                             | `chip`    |
+| `size`  | `sm` `md` `lg`                                                            | `md`      |
 
-A `tone` publishes `--ib-ch` (an `r g b` channel triplet), `--ib-grad` and `--ib-accent`. A `fill` consumes them and knows nothing about which tone supplied them.
+A `tone` publishes `--ib-ch` (an `r g b` channel triplet), `--ib-grad`, `--ib-on-solid` and `--ib-accent`. A `fill` consumes them and knows nothing about which tone supplied them.
 
 One combination is contextual rather than universal: `translucent` is deliberately tone-independent — white-on-whatever by default, sized for sitting **on top of a coloured surface** (a gradient hero, a featured card). On a light page background it is white-on-white and will disappear unless the label is repointed with `--ib-on-translucent` (see below). That is a property of the fill, not a bug to fix in CSS; the package cannot know what is behind it.
 
 ### Presets
 
-`variant` is a named alias for a point in axis space. It is a convenience layer, never a source of styling — `variant="pill"` and `tone="blue" fill="outline" shape="pill"` produce byte-identical DOM. Explicit axis props win over the preset.
+`variant` is a named alias for a point in axis space. It is a convenience layer, never a source of styling — `variant="pill"` and `tone="primary" fill="outline" shape="pill"` produce byte-identical DOM. Explicit axis props win over the preset.
 
 | `variant`     | equals                                       |
 | ------------- | -------------------------------------------- |
-| `mint`        | `tone=mint fill=solid`                       |
-| `violet`      | `tone=violet fill=solid`                     |
-| `amber`       | `tone=amber fill=solid`                      |
+| `primary`     | `tone=primary fill=solid`                    |
+| `secondary`   | `tone=secondary fill=solid`                  |
+| `accent`      | `tone=accent fill=solid`                     |
+| `success`     | `tone=success fill=solid`                    |
+| `warning`     | `tone=warning fill=solid`                    |
 | `danger`      | `tone=danger fill=solid`                     |
-| `blue`        | `tone=blue fill=solid`                       |
 | `ghost`       | `tone=neutral fill=ghost`                    |
 | `text`        | `tone=neutral fill=bare`                     |
-| `pill`        | `tone=blue fill=outline shape=pill`          |
+| `pill`        | `tone=primary fill=outline shape=pill`       |
 | `pill-filled` | `tone=neutral fill=translucent shape=pill`   |
 
 ## Other props
@@ -70,19 +71,19 @@ Anything else is forwarded to the underlying element.
 
 `styles.css` declares **nothing on `:root`** and imports nothing. It will not hand your page a `--border` or a `--font-body`, and it makes no network request. Component rules are deliberately *unlayered*, so they beat unlayered global resets such as Bootstrap's `button {}` on specificity.
 
-The vendored defaults are a generated copy of the [Obsidian token sheet](https://cdn.thinktalentws48.click/starterkit/colors_and_type.css) — `pnpm sync:tokens` refetches it, `pnpm sync:tokens:check` fails when the copy has drifted. Only tokens the CSS actually uses are vendored; the seed list is scraped from `styles.css` itself, so it cannot fall out of date. If your app already loads that sheet, every default is overridden and none of this is reachable.
+The vendored defaults are a generated copy of the design system's token sheet — `pnpm sync:tokens` refetches it from the CDN, `pnpm sync:tokens:check` fails when the copy has drifted. Only tokens the CSS actually uses are vendored; the seed list is scraped from `styles.css` itself, so it cannot fall out of date. If your app already loads that sheet, every default is overridden and none of this is reachable.
 
-Tokens read: `--{mint,electric,amber,rose,cobalt,white,fg1}-channel` · `--gradient-{primary,secondary,amber,danger,cobalt}` · `--{mint,electric,amber,cobalt}-text` · `--fg1` `--fg2` `--fg-muted` `--border` · `--btn-ghost-bg{,-hover}` `--btn-outline-border{,-hover}` · `--radius-chip` `--radius-pill` · `--font-body`
+Tokens read, per colour family (`primary` `secondary` `accent` `success` `warning` `danger`): `--{family}-channel` · `--gradient-{family}` · `--{family}-text` · `--{family}-on-solid`. Plus the neutral/structural set: `--fg1` `--fg2` `--fg-muted` `--border` · `--btn-ghost-bg{,-hover}` `--btn-outline-border{,-hover}` · `--radius-chip` `--radius-pill` · `--font-body` `--white-channel`.
 
-Light mode is keyed off `[data-mui-color-scheme="light"]` (what the Obsidian sheet uses) **or** `[data-theme="light"]` on any ancestor; with neither attribute present, `prefers-color-scheme` decides.
+Light mode is keyed off `[data-mui-color-scheme="light"]` (what the design system's sheet uses) **or** `[data-theme="light"]` on any ancestor; with neither attribute present, `prefers-color-scheme` decides.
 
 The Storybook toolbar carries a **Light/Dark** button that exercises both attributes. It writes them to `<html>`, not only to the story wrapper — with `<html>` left bare the `prefers-color-scheme` fallback above still matches, so on a machine set to light appearance every button would render light tokens while the workshop claimed to be dark. `?globals=scheme:dark` reproduces the dark state as a shareable link.
 
 Tokens the package owns rather than borrows:
 
 - `--ib-btn-focus-ring` — focus ring colour. Unset by default.
-- `--ib-accent-{mint,violet,amber,danger,blue}` — the label colour used by the transparent fills (`outline`, `bare`) **in light mode only**. A design system's `*-text` tokens are tuned as accents on a dark surface: `--mint-text` (#B3D335) lands at about 1.7:1 on white, `--amber-text` at 2.2:1. The old variant table never paired a transparent fill with a brand hue so those combinations were unreachable — the axis model makes all of them reachable, which means they have to be legible. These values are measured, not derived: every tone × `outline`/`bare`/`ghost` combination clears 4.5:1 on the light surface (measured minimum 4.69:1 light, 5.2:1 dark) at the 14px/600 the button uses. Override them if your light surface is not near-white.
-- `--ib-on-grad` — label colour for `data-fill="solid"` and its loading spinner's highlighted edge. Defaults to `#fff`, which is correct against every dark-first preset shipped today. A light-first brand whose gradient lands light enough to wash out white text should set this — e.g. to the same ink its token sheet already computes for gradient text elsewhere.
+- `--ib-accent-{primary,secondary,accent,success,warning,danger}` — the label colour used by the transparent fills (`outline`, `bare`), in **both** schemes. Through 1.x this override only mattered in light mode, because the old ABI's `*-text` tokens were tuned as accents on a dark surface and were not guaranteed legible on a light one — two of the old hue-named accents measured as low as roughly 1.7:1 and 2.2:1 on white. The 2.0 ABI's `--{family}-text` is defined as ">=4.5:1 on `--surface`" independently per scheme, so the vendored default is already legible everywhere; this override exists purely for a brand that wants a different accent than its own `-text` token.
+- `--ib-on-grad` — label colour for `data-fill="solid"` and its loading spinner's highlighted edge. Falls back to the tone's own `--{family}-on-solid` — a MEASURED ink the design system computes per family, legible against both the resting and hovered fill — so a light-first brand's solid buttons are correct without needing this override. Set it directly only to force a different ink for one button.
 - `--ib-on-translucent` — label colour for `data-fill="translucent"` and its loading spinner's highlighted edge. Defaults to `#fff`; translucent is deliberately tone-independent (it sits on whatever coloured surface the caller places it on, not a brand token), so this is a plain escape hatch rather than something derived automatically. Override it if your surface is light.
 
 **Known limitation:** the translucent fill's background wash and border, and the loading spinner's un-highlighted ring, read `--white-channel` at low alpha and do not flip with colour scheme — a light-first brand whose translucent surface is also light gets a wash that's nearly invisible. Fixing this needs a scheme-flipping `--overlay-channel` published by the design system's token sheet, which does not exist yet; tracked as follow-up work, not silently patched around here.
@@ -99,7 +100,7 @@ The only JS-computed attribute is `data-interactive`, which is state rather than
 
 ## Accessibility
 
-- `:focus-visible` ring with a 2px offset. Solid fills ring in `--fg1` because a mint ring on a mint gradient is invisible.
+- `:focus-visible` ring with a 2px offset. Solid fills ring in `--fg1` because a same-hue ring on a same-hue gradient is invisible.
 - A disabled `<a>` is inert **by construction** — `<a>` ignores the `disabled` attribute, so the href is dropped, `onClick` is detached, `tabIndex` is forced to `-1`, `aria-disabled` is set, and `pointer-events` is killed in CSS. A caller-supplied `tabIndex` cannot resurrect it.
 - `prefers-reduced-motion`: transitions and the press offset are removed; the spinner is *slowed*, not stopped, because it carries state rather than decoration.
 - `forced-colors`: a system `ButtonText` border restores the affordance the OS strips along with the gradient. No `forced-color-adjust` override — the user's palette wins.

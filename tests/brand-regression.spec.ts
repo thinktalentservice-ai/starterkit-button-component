@@ -4,54 +4,49 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Regression coverage for the light-mode --ib-light-* shadowing bug fixed in
-   1.0.1: `--ib-light-mint` (and its four siblings) sat BETWEEN the public
-   `--ib-accent-*` override and the host token in the transparent-fill
-   fallback chain, so in light mode a hand-written literal beat an injected
-   host brand outright — invisibly, because dark mode never consulted that
-   layer. Every host but Obsidian got olive-green outline/bare buttons.
+   Regression coverage for the host-injected-brand fallback chain that feeds
+   the transparent fills' label colour (outline, bare).
+
+   Through 1.x this chain had a SECOND layer: `--ib-light-mint` (and its four
+   siblings) sat BETWEEN the public `--ib-accent-*` override and the host
+   token, active in light mode only, because the old ABI's `*-text` tokens
+   were tuned as accents on a dark surface and were not guaranteed legible on
+   a light one. That layer is gone — see the comment above the tone rules in
+   styles.css. The 2.0 ABI's `--<family>-text` is defined as ">=4.5:1 on
+   --surface" independently per scheme, so `--ib-accent` now has exactly one
+   fallback level in both schemes: `var(--ib-accent-<family>, var(--ib-t-<family>-text))`.
 
    jsdom (this repo's `pnpm test` vitest suite) cannot cascade custom
-   properties or resolve var() chains — it passed 30/30 while the bug was
-   live and always would. Only a real browser engine can prove a fallback
-   chain resolves the way the source claims it does, which is what this file
-   does: render every tone's transparent fills, inject a brand override the
-   same way a real SSR-delivered <style id="brand-vars"> block arrives
-   (appended to <head>, after this package's own styles.css), and read the
-   *computed* label colour out of the CSSOM — not the cascade, the result.
+   properties or resolve var() chains — it would pass while that fallback was
+   broken and always would. Only a real browser engine can prove it resolves
+   the way the source claims, which is what this file does: render every
+   tone's transparent fills, inject a brand override the same way a real
+   host's brand stylesheet arrives (appended to <head>, after this package's
+   own styles.css), and read the *computed* label colour out of the CSSOM —
+   not the cascade, the result.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const STYLES_CSS = readFileSync(join(ROOT, "styles.css"), "utf8");
 
 const BRAND_HEX = "#0B5FFF";
-const BRAND_CHANNEL = "11 95 255"; // #0B5FFF as an R G B triple, for the one chain that reads a *-channel token directly
 const BRAND_RGB = [11, 95, 255];
 
 type ToneCase = {
   tone: string;
-  /** Raw host token the LIGHT-scheme --ib-light-* chain ultimately falls back to. */
-  lightSeed: string;
-  /** Raw host token the DARK-scheme chain ultimately falls back to. */
-  darkSeed: string;
-  /** True when darkSeed is a "R G B" channel triple rather than a hex colour. */
-  darkIsChannel?: boolean;
+  /** Raw host token the --ib-accent chain ultimately falls back to, both schemes. */
+  seed: string;
   /** Known-good vendored defaults today, hex, for the baseline assertion. */
   baseline: { light: string; dark: string };
 };
 
 const TONES: ToneCase[] = [
-  { tone: "mint", lightSeed: "--mint", darkSeed: "--mint-text", baseline: { light: "#6B7D20", dark: "#C8E05E" } },
-  { tone: "violet", lightSeed: "--electric", darkSeed: "--electric-text", baseline: { light: "#7c3aed", dark: "#a78bfa" } },
-  { tone: "amber", lightSeed: "--amber-deep", darkSeed: "--amber-text", baseline: { light: "#b45309", dark: "#fbbf24" } },
-  {
-    tone: "danger",
-    lightSeed: "--rose-deep",
-    darkSeed: "--rose-channel",
-    darkIsChannel: true,
-    baseline: { light: "#e11d48", dark: "#f43f5e" },
-  },
-  { tone: "blue", lightSeed: "--cobalt-deep", darkSeed: "--cobalt-text", baseline: { light: "#005fb8", dark: "#4DB3FF" } },
+  { tone: "primary", seed: "--primary-text", baseline: { light: "#004d83", dark: "#40aaff" } },
+  { tone: "secondary", seed: "--secondary-text", baseline: { light: "#252d39", dark: "#738296" } },
+  { tone: "accent", seed: "--accent-text", baseline: { light: "#6c724f", dark: "#e3f0a6" } },
+  { tone: "success", seed: "--success-text", baseline: { light: "#106142", dark: "#56c490" } },
+  { tone: "warning", seed: "--warning-text", baseline: { light: "#8a5a19", dark: "#feb054" } },
+  { tone: "danger", seed: "--danger-text", baseline: { light: "#7a1a2c", dark: "#f86278" } },
 ];
 
 function hexToRgb(hex: string): number[] {
@@ -99,21 +94,21 @@ for (const scheme of ["dark", "light"] as const) {
       }
     });
 
-    for (const { tone, lightSeed, darkSeed, darkIsChannel } of TONES) {
+    for (const { tone, seed } of TONES) {
       test(`injected brand reaches --ib-accent for ${tone}`, async ({ page }) => {
         await page.setContent(fixtureHtml(scheme));
 
         const before = parseRgb(await labelColor(page, `outline-${tone}`));
 
-        const seedVar = scheme === "light" ? lightSeed : darkSeed;
-        const seedValue = scheme === "dark" && darkIsChannel ? BRAND_CHANNEL : BRAND_HEX;
-        // Same mechanism the real SSR delivery uses: a <style> appended after
-        // this package's own styles.css, targeting :root — a brand's actual
-        // rule additionally scopes to [data-mui-color-scheme="light"], but
-        // :root alone is sufficient and sharper for this regression: it
+        // Same mechanism the real host delivery uses: a <style> appended
+        // after this package's own styles.css, targeting :root — a brand's
+        // actual rule additionally scopes to [data-mui-color-scheme="light"],
+        // but :root alone is sufficient and sharper for this regression: it
         // isolates "does the fallback chain follow an inherited host token
-        // at all" from any scheme-selector-scoping question.
-        await page.addStyleTag({ content: `:root { ${seedVar}: ${seedValue}; }` });
+        // at all" from any scheme-selector-scoping question. One seed token
+        // now covers both schemes — the family's `-text` token is the same
+        // name in dark and light, only its vendored default differs.
+        await page.addStyleTag({ content: `:root { ${seed}: ${BRAND_HEX}; }` });
 
         const afterOutline = parseRgb(await labelColor(page, `outline-${tone}`));
         const afterBare = parseRgb(await labelColor(page, `bare-${tone}`));

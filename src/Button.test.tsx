@@ -21,10 +21,10 @@ const attrs = (el: HTMLElement) => ({
 });
 
 describe("axis resolution", () => {
-  it("defaults to mint / solid / chip / md", () => {
+  it("defaults to primary / solid / chip / md", () => {
     render(<Button>Go</Button>);
     expect(attrs(screen.getByRole("button"))).toEqual({
-      tone: "mint",
+      tone: "primary",
       fill: "solid",
       shape: "chip",
       size: "md",
@@ -43,7 +43,7 @@ describe("axis resolution", () => {
   it("produces identical axes for a preset and its explicit equivalent", () => {
     const { container: viaPreset } = render(<Button variant="pill">Docs</Button>);
     const { container: viaAxes } = render(
-      <Button tone="blue" fill="outline" shape="pill">
+      <Button tone="primary" fill="outline" shape="pill">
         Docs
       </Button>,
     );
@@ -70,7 +70,7 @@ describe("axis resolution", () => {
     // Reachable from plain JS consumers, where the union type is not enforced.
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     render(<Button variant={"nope" as never}>Go</Button>);
-    expect(attrs(screen.getByRole("button"))).toMatchObject({ tone: "mint", fill: "solid" });
+    expect(attrs(screen.getByRole("button"))).toMatchObject({ tone: "primary", fill: "solid" });
     // Silent degradation would hide a typo forever; prop-types used to catch it.
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('Unknown variant "nope"'));
     warn.mockRestore();
@@ -246,7 +246,15 @@ describe("accessibility", () => {
    * role/name/aria-state breakage across the whole axis matrix.
    */
   it("reports no axe violations across the axis matrix", async () => {
-    const tones = ["mint", "violet", "amber", "danger", "blue", "neutral"] as const;
+    const tones = [
+      "primary",
+      "secondary",
+      "accent",
+      "success",
+      "warning",
+      "danger",
+      "neutral",
+    ] as const;
     const fills = ["solid", "ghost", "outline", "bare", "translucent"] as const;
 
     const { container } = render(

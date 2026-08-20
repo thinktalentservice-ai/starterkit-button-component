@@ -14,8 +14,8 @@ describe("formatButtonSnippet", () => {
   });
 
   it("emits props in a stable order, not insertion order", () => {
-    expect(formatButtonSnippet({ fill: "ghost", tone: "mint", children: "mint" })).toBe(
-      '<Button tone="mint" fill="ghost">mint</Button>',
+    expect(formatButtonSnippet({ fill: "ghost", tone: "primary", children: "primary" })).toBe(
+      '<Button tone="primary" fill="ghost">primary</Button>',
     );
   });
 
@@ -27,8 +27,8 @@ describe("formatButtonSnippet", () => {
 
   it("keeps href with the other string props", () => {
     expect(
-      formatButtonSnippet({ href: "#link", tone: "blue", fill: "outline", children: "Anchor" }),
-    ).toBe('<Button tone="blue" fill="outline" href="#link">Anchor</Button>');
+      formatButtonSnippet({ href: "#link", tone: "primary", fill: "outline", children: "Anchor" }),
+    ).toBe('<Button tone="primary" fill="outline" href="#link">Anchor</Button>');
   });
 
   it("prints preset, shape and size", () => {
@@ -41,22 +41,23 @@ describe("formatButtonSnippet", () => {
 describe("Swatch", () => {
   it("renders the real Button for the props it prints", () => {
     render(
-      <Swatch tone="violet" fill="outline" shape="pill" size="sm">
-        violet
+      <Swatch tone="secondary" fill="outline" shape="pill" size="sm">
+        secondary
       </Swatch>,
     );
-    const button = screen.getByRole("button", { name: "violet" });
-    expect(button.getAttribute("data-tone")).toBe("violet");
+    const button = screen.getByRole("button", { name: "secondary" });
+    expect(button.getAttribute("data-tone")).toBe("secondary");
     expect(button.getAttribute("data-fill")).toBe("outline");
     expect(button.getAttribute("data-shape")).toBe("pill");
     expect(button.getAttribute("data-size")).toBe("sm");
-    expect(screen.getByText('<Button tone="violet" fill="outline" shape="pill" size="sm">violet</Button>'))
-      .toBeInTheDocument();
+    expect(
+      screen.getByText('<Button tone="secondary" fill="outline" shape="pill" size="sm">secondary</Button>'),
+    ).toBeInTheDocument();
   });
 
   it("renders an anchor when href is set", () => {
     render(
-      <Swatch href="#somewhere" tone="blue">
+      <Swatch href="#somewhere" tone="primary">
         Anchor
       </Swatch>,
     );
@@ -67,10 +68,10 @@ describe("Swatch", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.assign(navigator, { clipboard: { writeText } });
 
-    render(<Swatch tone="amber">Ship</Swatch>);
+    render(<Swatch tone="warning">Ship</Swatch>);
     fireEvent.click(screen.getByRole("button", { name: /copy/i }));
 
-    expect(writeText).toHaveBeenCalledWith('<Button tone="amber">Ship</Button>');
+    expect(writeText).toHaveBeenCalledWith('<Button tone="warning">Ship</Button>');
     expect(await screen.findByText(/^Copied$/)).toBeInTheDocument();
   });
 });

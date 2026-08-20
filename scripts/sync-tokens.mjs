@@ -17,9 +17,9 @@
    Vendored defaults are resolved transitively, so a default never depends on a
    token the host might not have:
 
-       --gradient-primary: linear-gradient(135deg, var(--brand-fill), var(--brand-fill-end))
+       --gradient-primary: linear-gradient(135deg, var(--primary-solid), var(--primary-solid-hover))
      → var(--gradient-primary, linear-gradient(135deg,
-           var(--brand-fill, #b3d335), var(--brand-fill-end, #8a9f2a)))
+           var(--primary-solid, #0099ff), var(--primary-solid-hover, #018eed)))
 
    The seed set is scraped from styles.css itself — every `--ib-t-x` a rule
    mentions. Use a new token and the next run vendors it; stop using one and it
@@ -158,8 +158,9 @@ const block = `${START}
 ${darkBlock}
 }
 
-/* Light scheme. Brand hues darken on a light surface, so the channels flip with
-   them: an outline drawn in the dark-surface mint lands near 1.7:1 on white. */
+/* Light scheme. Every family redefines its own channel and text token against
+   its own scheme's --surface, so this block is a second, independent set of
+   values rather than a computed flip of the dark one. */
 ${LIGHT_SELECTOR} .ib-btn,
 [data-theme="light"] .ib-btn {
 ${lightBlock("  ")}
