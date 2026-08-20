@@ -5,7 +5,15 @@ import type { ButtonFill, ButtonPreset, ButtonShape, ButtonSize, ButtonTone } fr
 import { Swatch } from "./stories/CodeSwatch";
 import "./Button.stories.css";
 
-const tones: ButtonTone[] = ["mint", "violet", "amber", "danger", "blue", "neutral"];
+const tones: ButtonTone[] = [
+  "primary",
+  "secondary",
+  "accent",
+  "success",
+  "warning",
+  "danger",
+  "neutral",
+];
 const fills: ButtonFill[] = ["solid", "ghost", "outline", "bare"];
 const sizes: ButtonSize[] = ["sm", "md", "lg"];
 const shapes: ButtonShape[] = ["chip", "pill"];
@@ -220,7 +228,7 @@ export const SizesAndShapes: Story = {
         <Section key={shape} title={shape}>
           <div className="ib-story-grid">
             {sizes.map((size) => (
-              <Swatch key={size} shape={shape} size={size} tone="blue">
+              <Swatch key={size} shape={shape} size={size} tone="primary">
                 {size}
               </Swatch>
             ))}
@@ -239,23 +247,23 @@ export const States: Story = {
     >
       <Section title="Interaction states">
         <div className="ib-story-grid">
-          <Swatch tone="mint">Ready</Swatch>
-          <Swatch tone="violet" loading>
+          <Swatch tone="primary">Ready</Swatch>
+          <Swatch tone="secondary" loading>
             Saving
           </Swatch>
           <Swatch tone="danger" disabled>
             Disabled
           </Swatch>
-          <Swatch href="#button-link" tone="blue" fill="outline">
+          <Swatch href="#button-link" tone="primary" fill="outline">
             Anchor
           </Swatch>
-          <Swatch href="#disabled-link" tone="amber" fill="bare" disabled>
+          <Swatch href="#disabled-link" tone="warning" fill="bare" disabled>
             Disabled anchor
           </Swatch>
         </div>
       </Section>
       <Section title="Width">
-        <Swatch fullWidth tone="blue">
+        <Swatch fullWidth tone="primary">
           Full-width action
         </Swatch>
       </Section>

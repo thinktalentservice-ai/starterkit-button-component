@@ -10,7 +10,7 @@
   --story-body: #626984;
   --story-muted: #515875;
   --story-desc: #6b7188;
-  --story-eyebrow: #6b7d20;
+  --story-eyebrow: #004d83;
   --story-line: rgb(22 25 37 / 0.12);
   --story-chip-bg: rgb(255 255 255 / 0.72);
   --story-chip-line: rgb(22 25 37 / 0.1);
@@ -28,7 +28,7 @@
   --story-body: rgb(240 242 255 / 0.58);
   --story-muted: rgb(240 242 255 / 0.62);
   --story-desc: rgb(240 242 255 / 0.55);
-  --story-eyebrow: var(--mint, #b3d335);
+  --story-eyebrow: var(--primary-text, #40aaff);
   --story-line: rgb(255 255 255 / 0.1);
   --story-chip-bg: rgb(255 255 255 / 0.06);
   --story-chip-line: rgb(255 255 255 / 0.12);
@@ -53,7 +53,7 @@
   width: 3.5rem;
   height: 0.22rem;
   content: "";
-  background: linear-gradient(90deg, var(--mint, #b3d335) 70%, var(--cobalt, #008aff) 70%);
+  background: linear-gradient(90deg, var(--primary, #0099ff) 70%, var(--accent, #d0e28c) 70%);
   border-radius: 999px;
 }
 
@@ -157,8 +157,8 @@
   padding: clamp(1.4rem, 5vw, 3rem);
   overflow: hidden;
   background:
-    radial-gradient(circle at 8% 5%, rgb(179 211 53 / 0.3), transparent 34%),
-    radial-gradient(circle at 92% 90%, rgb(0 138 255 / 0.32), transparent 38%),
+    radial-gradient(circle at 8% 5%, rgb(208 226 140 / 0.3), transparent 34%),
+    radial-gradient(circle at 92% 90%, rgb(0 153 255 / 0.32), transparent 38%),
     linear-gradient(135deg, #131626, #27284a 52%, #173e64);
   border: 1px solid rgb(255 255 255 / 0.12);
   border-radius: 1.6rem;

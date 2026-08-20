@@ -14,7 +14,14 @@
  * size  → padding / type scale / minimum hit target.
  */
 
-export type ButtonTone = "mint" | "violet" | "amber" | "danger" | "blue" | "neutral";
+export type ButtonTone =
+  | "primary"
+  | "secondary"
+  | "accent"
+  | "success"
+  | "warning"
+  | "danger"
+  | "neutral";
 export type ButtonFill = "solid" | "ghost" | "outline" | "bare" | "translucent";
 export type ButtonShape = "chip" | "pill";
 export type ButtonSize = "sm" | "md" | "lg";
@@ -25,23 +32,24 @@ export interface ButtonAxes {
   shape: ButtonShape;
 }
 
-export const DEFAULT_AXES: ButtonAxes = { tone: "mint", fill: "solid", shape: "chip" };
+export const DEFAULT_AXES: ButtonAxes = { tone: "primary", fill: "solid", shape: "chip" };
 
 /**
  * Presets are a convenience alias layer — a named point in axis space, never a
- * source of styling. `variant="pill"` and `tone="blue" fill="outline"
+ * source of styling. `variant="pill"` and `tone="primary" fill="outline"
  * shape="pill"` produce byte-identical DOM; the preset only fills in axes the
  * caller left unset.
  */
 export const PRESETS = {
-  mint: { tone: "mint", fill: "solid" },
-  violet: { tone: "violet", fill: "solid" },
-  amber: { tone: "amber", fill: "solid" },
+  primary: { tone: "primary", fill: "solid" },
+  secondary: { tone: "secondary", fill: "solid" },
+  accent: { tone: "accent", fill: "solid" },
+  success: { tone: "success", fill: "solid" },
+  warning: { tone: "warning", fill: "solid" },
   danger: { tone: "danger", fill: "solid" },
-  blue: { tone: "blue", fill: "solid" },
   ghost: { tone: "neutral", fill: "ghost" },
   text: { tone: "neutral", fill: "bare" },
-  pill: { tone: "blue", fill: "outline", shape: "pill" },
+  pill: { tone: "primary", fill: "outline", shape: "pill" },
   "pill-filled": { tone: "neutral", fill: "translucent", shape: "pill" },
 } as const satisfies Record<string, Partial<ButtonAxes>>;
 
@@ -63,7 +71,7 @@ const warned = new Set<string>();
  * well as TS) degrade to the defaults instead of rendering an unstyled button.
  *
  * Degrading silently is not good enough on its own: `variant="dnager"` would
- * render a perfectly normal mint button and nothing would ever say why. This
+ * render a perfectly normal primary button and nothing would ever say why. This
  * package dropped prop-types in favour of compile-time types, so a JS caller
  * has no other backstop — hence a dev-only warning, once per bad value. Valid
  * presets never warn; they are supported API, not deprecated.
