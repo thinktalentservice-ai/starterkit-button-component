@@ -9,13 +9,16 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # v7, not v4. GitHub force-ran v4 on Node 24 and warned that its Node 20
+      # target is deprecated; v7 targets Node 24 natively. Matches the version the
+      # sibling repos already run, so the four workflows do not drift apart again.
+      - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
         with:
           version: 11
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
