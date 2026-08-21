@@ -19,6 +19,23 @@ const sizes: ButtonSize[] = ["sm", "md", "lg"];
 const shapes: ButtonShape[] = ["chip", "pill"];
 const presets = Object.keys(PRESETS) as ButtonPreset[];
 
+/* The two presets @devopsnext/starterkit-theme ships (its PRESET_IDS). Declared
+   here rather than imported: .storybook/ is outside this project's tsconfig
+   `include`, and the tone/fill/size lists above are local for the same reason.
+   The ids must match the [data-brand="..."] scopes in brands.generated.css. */
+const brands = [
+  { id: "think", label: "Think" },
+  { id: "elemetrik", label: "Elemetrik" },
+] as const;
+
+/* The pair worth putting side by side. `solid` carries --<tone>-on-solid, the
+   one token that flips VALUE KIND between the two brands (Think reads its fill
+   as light and lays #0b0f19 ink on it, Elemetrik reads its violet as dark and
+   goes white) — so if brand tokens are not reaching the button, this row is
+   where it shows without needing a colour picker. `outline` carries
+   --<tone>-text, the chain tests/brand-regression.spec.ts guards. */
+const comparisonFills: ButtonFill[] = ["solid", "outline"];
+
 function Section({
   title,
   description,
@@ -297,4 +314,72 @@ export const ContextualTranslucent: Story = {
       </div>
     </StoryFrame>
   ),
+};
+
+export const BrandComparison: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Both brand presets at once, at whichever scheme the toolbar is set to. " +
+          "The Brand toggle switches the rest of the workshop; this story is the one " +
+          "place you can see the delta without flipping back and forth.",
+      },
+    },
+  },
+  /* Plain <Button> rather than <Swatch> here, deliberately: a Swatch prints the
+     JSX that produced it, and the JSX for these specimens is identical across
+     both columns — the whole difference lives in the wrapper's data-brand. A
+     copyable snippet that omits the only thing being demonstrated would be
+     worse than no snippet. Every other story keeps its Swatches. */
+  render: (_args, { globals }) => {
+    const scheme = globals.scheme === "dark" ? "dark" : "light";
+
+    return (
+      <StoryFrame
+        title="Brand comparison"
+        description="The same buttons under both starterkit-theme presets, side by side at the current scheme."
+      >
+        <Section
+          title={`Think vs Elemetrik — ${scheme} scheme`}
+          description="Watch the solid row: its label ink is dark under Think and white under Elemetrik, because --<tone>-on-solid is measured per brand rather than assumed."
+        >
+          <div className="ib-story-brands">
+            {brands.map(({ id, label }) => (
+              /* Both attributes on THIS element, not split with an ancestor:
+                 brands.generated.css scopes each preset's light block as
+                 [data-brand="x"][data-mui-color-scheme="light"], a compound
+                 selector. A wrapper carrying only data-brand would inherit
+                 <html>'s light scheme yet match the brand's dark block, and
+                 the column would quietly render dark tokens on a light page. */
+              <div
+                key={id}
+                className="ib-story-brand"
+                data-brand={id}
+                data-mui-color-scheme={scheme}
+                data-theme={scheme}
+              >
+                <p className="ib-story-brand__label">
+                  <span className="ib-story-brand__dot" />
+                  {label}
+                </p>
+                {comparisonFills.map((fill) => (
+                  <div key={fill} className="ib-story-brand__row">
+                    <span className="ib-story-brand__fill">{fill}</span>
+                    <div className="ib-story-grid">
+                      {tones.map((tone) => (
+                        <Button key={tone} tone={tone} fill={fill}>
+                          {tone}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </Section>
+      </StoryFrame>
+    );
+  },
 };

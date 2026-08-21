@@ -1,7 +1,20 @@
 import { useLayoutEffect } from "react";
 import type { Preview } from "@storybook/react-vite";
+// The two brand presets, each scoped to [data-brand="<id>"] so both can be
+// loaded at once — see scripts/gen-brands.mjs for why that rewrite is needed.
+// Workshop-only: the published package still depends on no brand at all.
+import "./brands.generated.css";
 import "../styles.css";
 import "./preview.css";
+
+/** The roster from starterkit-theme's PRESET_IDS. Anything else is not a brand. */
+const BRANDS = ["think", "elemetrik"] as const;
+type Brand = (typeof BRANDS)[number];
+
+/** Same posture as the scheme normalisation below: an unknown value is the default,
+ *  never a broken render, so a hand-edited `?globals=brand:nonsense` URL is harmless. */
+const asBrand = (value: unknown): Brand =>
+  BRANDS.includes(value as Brand) ? (value as Brand) : "think";
 
 const preview = {
   parameters: {
@@ -33,13 +46,21 @@ const preview = {
     scheme: {
       description: "Colour scheme the buttons render against",
     },
+    brand: {
+      description: "Which starterkit-theme preset supplies the tokens",
+    },
   },
   // Light, matching the sibling component workshops — a reader moving between
   // the card's docs and this one should not be handed a different-looking site.
   // The vendored token defaults are dark-first, so Dark is the other half of the
   // toolbar rather than an afterthought; only the workshop's resting state is
   // light.
-  initialGlobals: { scheme: "light" },
+  //
+  // `think` is starterkit-theme's own DEFAULT_PRESET_ID, and it is also what
+  // the vendored defaults in styles.css already are — so the workshop's resting
+  // state is the one state where the brand sheet changes nothing. Elemetrik is
+  // the setting that proves the tokens are actually flowing.
+  initialGlobals: { scheme: "light", brand: "think" },
   decorators: [
     // Both attributes are set on purpose: `data-mui-color-scheme` is what the
     // Obsidian sheet itself keys off, `data-theme` is this library's alias for
@@ -56,18 +77,40 @@ const preview = {
     //
     // `data-scheme` is separate and workshop-only: preview.css keys the canvas
     // and the docs-block background off it.
+    // `data-brand` rides along on the same two elements for the same reason,
+    // with one extra constraint: brands.generated.css scopes each preset's
+    // light block as `[data-brand="x"][data-mui-color-scheme="light"]` — a
+    // COMPOUND selector, both attributes on ONE element. <html> carries both,
+    // so it matches. The wrapper div carries both, so it matches too. Splitting
+    // them across the two would silently serve dark brand tokens in light mode.
     (Story, context) => {
       const scheme = context.globals.scheme === "dark" ? "dark" : "light";
+      const brand = asBrand(context.globals.brand);
 
       useLayoutEffect(() => {
         const root = document.documentElement;
         root.dataset.scheme = scheme;
         root.dataset.theme = scheme;
         root.dataset.muiColorScheme = scheme;
-      }, [scheme]);
+        root.dataset.brand = brand;
+      }, [scheme, brand]);
 
+      // `key` forces a remount when the brand changes, and it is a fix rather
+      // than a precaution. Switching brand rewrites tokens that are INHERITED
+      // from <html>; Chromium recomputes the custom property but does not
+      // always re-run the `color` transition that depends on it, so a solid
+      // button can keep the previous brand's label ink indefinitely while its
+      // gradient updates. Measured: after switching Think -> Elemetrik,
+      // --ib-on-solid reads #fff while getComputedStyle(...).color still reads
+      // rgb(11,15,25); a freshly cloned copy of the very same element in the
+      // very same document computes #fff. New elements are correct, stale ones
+      // are not — so remount them.
+      //
+      // Scheme is deliberately NOT in the key: it flips whole rule blocks
+      // rather than only inherited values, it does not exhibit the stall, and
+      // keeping it un-keyed preserves the light/dark cross-fade.
       return (
-        <div data-mui-color-scheme={scheme} data-theme={scheme}>
+        <div key={brand} data-mui-color-scheme={scheme} data-theme={scheme} data-brand={brand}>
           <Story />
         </div>
       );

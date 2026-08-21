@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -120,3 +120,152 @@ for (const scheme of ["dark", "light"] as const) {
     }
   });
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BRAND PARITY — the workshop's two starterkit-theme presets.
+
+   The tests above prove the fallback chain follows *a* host token. These prove
+   it follows the *right* one: that .storybook/brands.generated.css, which
+   rewrites each preset's `:root` into `[data-brand="<id>"]`, still delivers
+   that preset's own values once a browser has resolved the compound selectors
+   and the alias chain on top of them.
+
+   Two things make this worth a browser rather than a string comparison:
+
+   1. The light rules are COMPOUND — `[data-brand="x"][data-mui-color-scheme=
+      "light"]` — so they match only when both attributes sit on one element. A
+      refactor that moved the brand attribute up to a wrapper would still look
+      correct in the CSS and would silently serve dark tokens in light mode.
+   2. `--<family>-on-solid` is the sharpest signal in the sheet. It is a
+      MEASURED ink, not a derived one: Think's blue takes #0b0f19, Elemetrik's
+      violet takes #ffffff. Nothing in this package computes that, so if solid
+      labels come out right under both brands, brand tokens are genuinely
+      reaching the button rather than a vendored default happening to agree.
+
+   Expectations are READ from the preset source at run time, not tabled. The
+   hard-coded TONES baseline above is hand-maintained on purpose — it pins the
+   vendored defaults, which have no machine-readable source. These do have one,
+   so tabling them would only add a second place to forget to update.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const BRANDS_CSS = readFileSync(join(ROOT, ".storybook", "brands.generated.css"), "utf8");
+
+/* Prefer the sibling theme checkout when it is present: reading the ORIGINAL
+   preset makes this a test of the rewrite itself. Falling back to the generated
+   file keeps the suite runnable where only this repo is checked out — weaker,
+   but it still covers selector matching, inheritance and the alias chain, which
+   is the part that needs a browser. */
+const PRESETS_DIR = join(ROOT, "..", "starterkit-theme", "presets");
+const FROM_UPSTREAM = existsSync(join(PRESETS_DIR, "think.css"));
+
+const BRAND_IDS = ["think", "elemetrik"] as const;
+type BrandId = (typeof BRAND_IDS)[number];
+
+/** Body of the first `<selector> … {` … `}`, by brace matching. */
+function ruleBody(css: string, selector: string): string {
+  const at = css.indexOf(selector);
+  if (at === -1) throw new Error(`selector not found: ${selector}`);
+  const open = css.indexOf("{", at);
+  let depth = 0;
+  for (let i = open; i < css.length; i++) {
+    if (css[i] === "{") depth++;
+    else if (css[i] === "}" && --depth === 0) return css.slice(open + 1, i);
+  }
+  throw new Error(`unterminated rule: ${selector}`);
+}
+
+function customProps(body: string): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const decl of body.split(";")) {
+    const split = decl.indexOf(":");
+    if (split === -1) continue;
+    const name = decl.slice(0, split).trim();
+    if (name.startsWith("--")) out.set(name, decl.slice(split + 1).trim());
+  }
+  return out;
+}
+
+type BrandMaps = { dark: Map<string, string>; light: Map<string, string> };
+
+function expectedTokens(brand: BrandId): BrandMaps {
+  if (FROM_UPSTREAM) {
+    const sheet = readFileSync(join(PRESETS_DIR, `${brand}.css`), "utf8");
+    return {
+      dark: customProps(ruleBody(sheet, ":root {")),
+      light: customProps(ruleBody(sheet, '[data-mui-color-scheme="light"] {')),
+    };
+  }
+  return {
+    dark: customProps(ruleBody(BRANDS_CSS, `[data-brand="${brand}"] {`)),
+    light: customProps(
+      ruleBody(BRANDS_CSS, `[data-brand="${brand}"][data-mui-color-scheme="light"]`),
+    ),
+  };
+}
+
+/* The light block redeclares only what actually changes, so an absent token
+   means "same as dark" — notably every `-on-solid`, which is scheme-invariant
+   by design: the fill is the brand's seed hex in both schemes. */
+function tokenFor(maps: BrandMaps, scheme: "light" | "dark", name: string): string {
+  const value = scheme === "light" ? (maps.light.get(name) ?? maps.dark.get(name)) : maps.dark.get(name);
+  if (!value) throw new Error(`${name} absent from the preset sheet`);
+  return value;
+}
+
+function brandFixtureHtml(brand: BrandId, scheme: "light" | "dark"): string {
+  const buttons = TONES.map(
+    ({ tone }) => `
+    <button class="ib-btn" data-tone="${tone}" data-fill="solid" data-size="md" id="solid-${tone}">${tone}</button>
+    <button class="ib-btn" data-tone="${tone}" data-fill="outline" data-size="md" id="outline-${tone}">${tone}</button>`,
+  ).join("");
+  // Brand sheet FIRST, the order .storybook/preview.tsx imports them in, and
+  // both attributes on <html> so the compound light selector can match at all.
+  return `<!doctype html><html data-brand="${brand}" data-mui-color-scheme="${scheme}" data-theme="${scheme}"><head><style>${BRANDS_CSS}</style><style>${STYLES_CSS}</style><style>.ib-btn { transition: none !important; }</style></head><body>${buttons}</body></html>`;
+}
+
+for (const brand of BRAND_IDS) {
+  for (const scheme of ["dark", "light"] as const) {
+    test.describe(`${brand} / ${scheme}`, () => {
+      test("the brand sheet is the one in scope", async ({ page }) => {
+        await page.setContent(brandFixtureHtml(brand, scheme));
+        const stamped = await page.evaluate(() =>
+          getComputedStyle(document.documentElement).getPropertyValue("--tokens-brand").trim(),
+        );
+        // Quoted at source (`--tokens-brand: "think"`), and the CSSOM hands the
+        // quotes back verbatim.
+        expect(stamped).toBe(`"${brand}"`);
+      });
+
+      test("solid labels use the brand's measured ink", async ({ page }) => {
+        await page.setContent(brandFixtureHtml(brand, scheme));
+        const maps = expectedTokens(brand);
+        for (const { tone } of TONES) {
+          const want = hexToRgb(tokenFor(maps, scheme, `--${tone}-on-solid`));
+          const got = parseRgb(await labelColor(page, `solid-${tone}`));
+          expect(got, `${brand}/${scheme}/${tone} solid ink`).toEqual(want);
+        }
+      });
+
+      test("outline labels use the brand's text token", async ({ page }) => {
+        await page.setContent(brandFixtureHtml(brand, scheme));
+        const maps = expectedTokens(brand);
+        for (const { tone, seed } of TONES) {
+          const want = hexToRgb(tokenFor(maps, scheme, seed));
+          const got = parseRgb(await labelColor(page, `outline-${tone}`));
+          expect(got, `${brand}/${scheme}/${tone} outline label`).toEqual(want);
+        }
+      });
+    });
+  }
+}
+
+/* The two brands must not merely both work — they must DIFFER. Without this, a
+   rewrite that emitted the same block twice under two names would satisfy every
+   assertion above. */
+test("the two brands render differently", async ({ page }) => {
+  const read = async (brand: BrandId) => {
+    await page.setContent(brandFixtureHtml(brand, "light"));
+    return Promise.all(TONES.map(({ tone }) => labelColor(page, `solid-${tone}`)));
+  };
+  expect(await read("think")).not.toEqual(await read("elemetrik"));
+});
