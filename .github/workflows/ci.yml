@@ -30,3 +30,25 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - run: pnpm test:brand
+
+      # docs/ is a COMMITTED Storybook build served by GitHub Pages, so it can
+      # rot without anything failing: it went two commits stale through the
+      # 2.0.0 tone rename and kept publishing the retired 1.x names to every
+      # visitor while CI stayed green.
+      #
+      # Diffing the whole build is not an option — Vite's content hashes churn
+      # on every run. Grepping for names that no longer exist anywhere in src/
+      # is: it is deterministic, it costs nothing, and it is exactly the check
+      # that would have caught the drift that prompted it. Add a name here
+      # whenever one is retired from src/axes.ts or styles.css.
+      - name: Published Storybook is not on a retired ABI
+        run: |
+          set -e
+          retired='"mint"|"violet"|"amber"|"blue"|ib-light'
+          if grep -rEl "$retired" docs/assets/ >/dev/null 2>&1; then
+            echo "::error::docs/ still ships retired token or tone names."
+            grep -rEo "$retired" docs/assets/ | sort -u
+            echo "Rebuild and commit it: pnpm build-storybook"
+            exit 1
+          fi
+          echo "docs/ is on the current ABI"

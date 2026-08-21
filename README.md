@@ -88,6 +88,35 @@ Tokens the package owns rather than borrows:
 
 **Known limitation:** the translucent fill's background wash and border, and the loading spinner's un-highlighted ring, read `--white-channel` at low alpha and do not flip with colour scheme — a light-first brand whose translucent surface is also light gets a wash that's nearly invisible. Fixing this needs a scheme-flipping `--overlay-channel` published by the design system's token sheet, which does not exist yet; tracked as follow-up work, not silently patched around here.
 
+## Brands in the workshop
+
+The component depends on no brand. The **workshop** carries two, so you can see the tokens actually move.
+
+`@devopsnext/starterkit-theme` publishes exactly two presets — **Think** and **Elemetrik** (its `PRESET_IDS`) — and each ships as a sheet that owns `:root`. Loading both would be meaningless: whichever came last would win the document. So `scripts/gen-brands.mjs` rewrites them into one addressable sheet:
+
+```
+:root                            ->  [data-brand="think"]
+[data-mui-color-scheme="light"]  ->  [data-brand="think"][data-mui-color-scheme="light"]
+```
+
+Values are copied verbatim; nothing is recomputed, so the workshop cannot show a colour the theme engine would not produce. The result is `.storybook/brands.generated.css`, which is committed.
+
+```bash
+pnpm gen:brands          # rewrite from ../starterkit-theme/presets
+pnpm gen:brands:check    # report drift
+pnpm gen:brands -- --source=<dir>
+```
+
+Unlike `sync:tokens:check`, this is a **local gate, not a CI step**: the theme package is not on npm, so the runner has no copy to compare against. That is also why the output is vendored rather than imported — a `file:../starterkit-theme` devDependency would break `pnpm install --frozen-lockfile` in CI.
+
+The generated sheet is **workshop-only**. It is not in `package.json`'s `files`, and nothing in `dist/` references it.
+
+The light rules are *compound* — both attributes on one element — so whatever carries `data-brand` must carry the scheme attribute too. The Storybook decorator puts all of them on `<html>`; the `BrandComparison` story restates them on each column, which is how it shows both brands at once.
+
+**Think is the resting state**, because the vendored defaults in `styles.css` already *are* Think's values — selecting it changes nothing. Elemetrik is the setting that proves brand tokens are reaching the button, and `--{family}-on-solid` is where it is most obvious: solid labels are near-black under Think's blue and white under Elemetrik's violet, because that ink is measured per brand rather than assumed. `tests/brand-regression.spec.ts` asserts exactly that, reading its expectations out of the preset sheets rather than a hard-coded table.
+
+The **Brand** toolbar button sits next to **Light/Dark**; `?globals=brand:elemetrik;scheme:dark` reproduces any of the four states as a shareable link.
+
 ## Why no JS styling
 
 The pre-extraction component drove hover with `onMouseOver`/`onMouseOut` and mutated `e.currentTarget.style` directly. That approach:
@@ -113,6 +142,7 @@ pnpm install
 pnpm verify      # tsc --noEmit && tsc -p tsconfig.playwright.json && vitest run && tsup
 pnpm test:brand  # real-browser brand-injection regression suite (Playwright, not part of `verify`)
 pnpm storybook   # local component workshop on port 6006
+pnpm gen:brands  # rewrite .storybook/brands.generated.css from ../starterkit-theme
 pnpm build-storybook  # refresh the GitHub Pages site in docs/
 ```
 
