@@ -26,7 +26,7 @@ There is no variant lookup table. Every visual decision belongs to exactly one a
 
 | Axis    | Values                                                                  | Default   |
 | ------- | ------------------------------------------------------------------------ | --------- |
-| `tone`  | `primary` `secondary` `accent` `success` `warning` `danger` `neutral`    | `primary` |
+| `tone`  | `primary` `secondary` `accent` `success` `warning` `danger` `info` `accent-green` `accent-pink` `neutral` | `primary` |
 | `fill`  | `solid` `ghost` `outline` `bare` `translucent`                           | `solid`   |
 | `shape` | `chip` `pill`                                                             | `chip`    |
 | `size`  | `sm` `md` `lg`                                                            | `md`      |
@@ -47,6 +47,9 @@ One combination is contextual rather than universal: `translucent` is deliberate
 | `success`     | `tone=success fill=solid`                    |
 | `warning`     | `tone=warning fill=solid`                    |
 | `danger`      | `tone=danger fill=solid`                     |
+| `info`        | `tone=info fill=solid`                       |
+| `accent-green`| `tone=accent-green fill=solid`               |
+| `accent-pink` | `tone=accent-pink fill=solid`                |
 | `ghost`       | `tone=neutral fill=ghost`                    |
 | `text`        | `tone=neutral fill=bare`                     |
 | `pill`        | `tone=primary fill=outline shape=pill`       |
@@ -73,7 +76,7 @@ Anything else is forwarded to the underlying element.
 
 The vendored defaults are a generated copy of the design system's token sheet — `pnpm sync:tokens` refetches it from the CDN, `pnpm sync:tokens:check` fails when the copy has drifted. Only tokens the CSS actually uses are vendored; the seed list is scraped from `styles.css` itself, so it cannot fall out of date. If your app already loads that sheet, every default is overridden and none of this is reachable.
 
-Tokens read, per colour family (`primary` `secondary` `accent` `success` `warning` `danger`): `--{family}-channel` · `--gradient-{family}` · `--{family}-text` · `--{family}-on-solid`. Plus the neutral/structural set: `--fg1` `--fg2` `--fg-muted` `--border` · `--btn-ghost-bg{,-hover}` `--btn-outline-border{,-hover}` · `--radius-chip` `--radius-pill` · `--font-body` `--white-channel`.
+Tokens read, per colour family (`primary` `secondary` `accent` `success` `warning` `danger` `info` `accent-green` `accent-pink`): `--{family}-channel` · `--gradient-{family}` · `--{family}-text` · `--{family}-on-solid`. Plus the neutral/structural set: `--fg1` `--fg2` `--fg-muted` `--border` · `--btn-ghost-bg{,-hover}` `--btn-outline-border{,-hover}` · `--radius-chip` `--radius-pill` · `--font-body` `--white-channel`.
 
 Light mode is keyed off `[data-mui-color-scheme="light"]` (what the design system's sheet uses) **or** `[data-theme="light"]` on any ancestor; with neither attribute present, `prefers-color-scheme` decides.
 
@@ -82,7 +85,7 @@ The Storybook toolbar carries a **Light/Dark** button that exercises both attrib
 Tokens the package owns rather than borrows:
 
 - `--ib-btn-focus-ring` — focus ring colour. Unset by default.
-- `--ib-accent-{primary,secondary,accent,success,warning,danger}` — the label colour used by the transparent fills (`outline`, `bare`), in **both** schemes. Through 1.x this override only mattered in light mode, because the old ABI's `*-text` tokens were tuned as accents on a dark surface and were not guaranteed legible on a light one — two of the old hue-named accents measured as low as roughly 1.7:1 and 2.2:1 on white. The 2.0 ABI's `--{family}-text` is defined as ">=4.5:1 on `--surface`" independently per scheme, so the vendored default is already legible everywhere; this override exists purely for a brand that wants a different accent than its own `-text` token.
+- `--ib-accent-{primary,secondary,accent,success,warning,danger,info,accent-green,accent-pink}` — the label colour used by the transparent fills (`outline`, `bare`), in **both** schemes. Through 1.x this override only mattered in light mode, because the old ABI's `*-text` tokens were tuned as accents on a dark surface and were not guaranteed legible on a light one — two of the old hue-named accents measured as low as roughly 1.7:1 and 2.2:1 on white. The 2.0 ABI's `--{family}-text` is defined as ">=4.5:1 on `--surface`" independently per scheme, so the vendored default is already legible everywhere; this override exists purely for a brand that wants a different accent than its own `-text` token.
 - `--ib-on-grad` — label colour for `data-fill="solid"` and its loading spinner's highlighted edge. Falls back to the tone's own `--{family}-on-solid` — a MEASURED ink the design system computes per family, legible against both the resting and hovered fill — so a light-first brand's solid buttons are correct without needing this override. Set it directly only to force a different ink for one button.
 - `--ib-on-translucent` — label colour for `data-fill="translucent"` and its loading spinner's highlighted edge. Defaults to `#fff`; translucent is deliberately tone-independent (it sits on whatever coloured surface the caller places it on, not a brand token), so this is a plain escape hatch rather than something derived automatically. Override it if your surface is light.
 

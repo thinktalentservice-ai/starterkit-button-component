@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@devopsnext/starterkit-theme':
+        specifier: file:../starterkit-theme/devopsnext-starterkit-theme-1.2.0.tgz
+        version: file:../starterkit-theme/devopsnext-starterkit-theme-1.2.0.tgz(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@playwright/test':
         specifier: ^1.62.1
         version: 1.62.1
@@ -172,6 +175,22 @@ packages:
   '@csstools/css-tokenizer@3.0.4':
     resolution: {integrity: sha512-Vd/9EVDiu6PPJt9yAh6roZP6El1xHrdvIVGjyBsHR0RYwNHgL7FJPyIIW4fANJNG6FtyZfvlRPpFI4ZM/lubvw==}
     engines: {node: '>=18'}
+
+  '@devopsnext/starterkit-theme@file:../starterkit-theme/devopsnext-starterkit-theme-1.2.0.tgz':
+    resolution: {integrity: sha512-7eJsU5jXoA2V7xGidWlM0CziAB9lrPET2+q4NvIFfhXjWOMUS3KhJ7u2DhFM4d0uFs0t7ZPuTlJOP7X4qSfe3A==, tarball: file:../starterkit-theme/devopsnext-starterkit-theme-1.2.0.tgz}
+    version: 1.2.0
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@mui/material': '>=6'
+      react: '>=18'
+      react-dom: '>=18'
+    peerDependenciesMeta:
+      '@mui/material':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
 
   '@emnapi/core@1.11.1':
     resolution: {integrity: sha512-RSvbQmHzdKzNsLYa/wHrbc3KN4sYLKAdPZxqiM2HATqv/SBk2/ENSHpvXGaLOMcsAyz0poEGqkmmKYG3OWiJEQ==}
@@ -2345,6 +2364,11 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.4
 
   '@csstools/css-tokenizer@3.0.4': {}
+
+  '@devopsnext/starterkit-theme@file:../starterkit-theme/devopsnext-starterkit-theme-1.2.0.tgz(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+    optionalDependencies:
+      react: 19.2.6
+      react-dom: 19.2.6(react@19.2.6)
 
   '@emnapi/core@1.11.1':
     dependencies:

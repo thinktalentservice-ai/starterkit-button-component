@@ -12,6 +12,9 @@ const tones: ButtonTone[] = [
   "success",
   "warning",
   "danger",
+  "info",
+  "accent-green",
+  "accent-pink",
   "neutral",
 ];
 const fills: ButtonFill[] = ["solid", "ghost", "outline", "bare"];
@@ -382,4 +385,66 @@ export const BrandComparison: Story = {
       </StoryFrame>
     );
   },
+};
+
+/* starterkit-theme 1.1.1 added two DUO-TONE gradients spanning two roles —
+   --gradient-primary-info and --gradient-primary-accent-pink — alongside its
+   new info/accent-green/accent-pink roles. A `--gradient-{family}` (what
+   .ib-btn's `tone` axis publishes as --ib-grad) is always drawn from ONE
+   family's own --solid / --solid-hover, so these two have no tone to render
+   through; they are painted straight from the token here for discoverability,
+   each with a Think-valued fallback matching the sheet's own default. */
+const crossFamilyGradients = [
+  {
+    token: "--gradient-primary-info",
+    ink: "--gradient-primary-info-ink",
+    fallback: "linear-gradient(135deg, var(--primary-solid, #0099ff), var(--info-solid, #0078d4))",
+    label: "Primary → Info",
+  },
+  {
+    token: "--gradient-primary-accent-pink",
+    ink: "--gradient-primary-accent-pink-ink",
+    fallback: "linear-gradient(135deg, var(--primary-solid, #0099ff), var(--accent-pink-solid, #ee4480))",
+    label: "Primary → Accent Pink",
+  },
+] as const;
+
+export const CrossFamilyGradients: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Two new duo-tone gradients from starterkit-theme 1.1.1, spanning two roles rather than one " +
+          "family's own solid/hover pair. The button's `tone` axis has no slot for a two-role gradient, so " +
+          "these are shown directly from their tokens rather than through a Swatch.",
+      },
+    },
+  },
+  render: () => (
+    <StoryFrame
+      title="Cross-family gradients"
+      description="New in starterkit-theme 1.1.1 — --gradient-primary-info and --gradient-primary-accent-pink, each with its own measured ink token."
+    >
+      <Section
+        title="Duo-tone tokens"
+        description="Painted straight from the token (a Think-valued fallback applies where the host sheet is absent) — not reachable through tone."
+      >
+        <div className="ib-story-gradient-grid">
+          {crossFamilyGradients.map(({ token, ink, fallback, label }) => (
+            <div
+              key={token}
+              className="ib-story-gradient"
+              style={{
+                background: `var(${token}, ${fallback})`,
+                color: `var(${ink}, #0b0f19)`,
+              }}
+            >
+              <span>{label}</span>
+              <code>{token}</code>
+            </div>
+          ))}
+        </div>
+      </Section>
+    </StoryFrame>
+  ),
 };

@@ -43,10 +43,13 @@ type ToneCase = {
 const TONES: ToneCase[] = [
   { tone: "primary", seed: "--primary-text", baseline: { light: "#004d83", dark: "#40aaff" } },
   { tone: "secondary", seed: "--secondary-text", baseline: { light: "#252d39", dark: "#738296" } },
-  { tone: "accent", seed: "--accent-text", baseline: { light: "#6c724f", dark: "#e3f0a6" } },
-  { tone: "success", seed: "--success-text", baseline: { light: "#106142", dark: "#56c490" } },
+  { tone: "accent", seed: "--accent-text", baseline: { light: "#576328", dark: "#c8e063" } },
+  { tone: "success", seed: "--success-text", baseline: { light: "#255925", dark: "#6eba67" } },
   { tone: "warning", seed: "--warning-text", baseline: { light: "#8a5a19", dark: "#feb054" } },
   { tone: "danger", seed: "--danger-text", baseline: { light: "#7a1a2c", dark: "#f86278" } },
+  { tone: "info", seed: "--info-text", baseline: { light: "#00315b", dark: "#3389d6" } },
+  { tone: "accent-green", seed: "--accent-green-text", baseline: { light: "#576328", dark: "#c8e063" } },
+  { tone: "accent-pink", seed: "--accent-pink-text", baseline: { light: "#771d3e", dark: "#f26594" } },
 ];
 
 function hexToRgb(hex: string): number[] {
