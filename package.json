@@ -44,7 +44,7 @@
     "react-dom": ">=18"
   },
   "devDependencies": {
-    "@devopsnext/starterkit-theme": "file:../starterkit-theme/devopsnext-starterkit-theme-1.2.0.tgz",
+    "@devopsnext/starterkit-theme": "1.2.0",
     "@playwright/test": "^1.62.1",
     "@storybook/addon-a11y": "^10.5.6",
     "@storybook/addon-docs": "^10.5.6",

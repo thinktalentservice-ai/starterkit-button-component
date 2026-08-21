@@ -2,3 +2,22 @@
 # esbuild ships a platform-specific binary and needs its postinstall to run.
 allowBuilds:
   esbuild: true
+# AN EXCLUSION IS A BRIDGE, NOT A SETTING. pnpm appended the entry below by
+# itself during `pnpm install`, because the theme had been on the registry for
+# about five minutes and that is inside the release-age window. It did so
+# SILENTLY — this workspace does not set `minimumReleaseAgeStrict: true`, so a
+# too-new package is excluded and installed rather than prompted for, and the
+# only trace is one line in the install output that nobody re-reads.
+#
+# The publish time is recorded so the entry can be audited by a human, since
+# nothing in this repo can: template-starterkit-nextjs has a
+# scripts/check-release-age.mjs that fails the build on an entry which has
+# expired or which nothing resolves to, and this package has no equivalent.
+# Delete this line once the window has passed — it cannot break resolution,
+# because "expired" means the package installs without it.
+#
+# Read a publish time with `npm view <pkg> time --json`, NEVER
+# `npm view <pkg> time.1.2.0` — npm splits the field path on the dots and
+# silently returns nothing, which reads as "unpublished".
+minimumReleaseAgeExclude:
+  - '@devopsnext/starterkit-theme@1.2.0' # published 2026-08-21T11:47:29Z
