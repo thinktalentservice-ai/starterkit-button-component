@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Regenerates the token-alias block inside styles.css from the Obsidian sheet.
+   Regenerates the token-alias block inside styles.css from the think sheet.
 
-   THE CONTRACT: the remote sheet is primary, styles.css is the backup.
+   THE CONTRACT: the host's sheet is primary, styles.css is the backup.
 
    That is enforced without `@layer` and without declaring `:root`. Every token
    the component consumes is aliased once, on `.ib-btn` itself, as
@@ -26,25 +26,83 @@
    disappears. No hand-maintained list, no drift.
 
      node scripts/sync-tokens.mjs                 rewrite the block
-     node scripts/sync-tokens.mjs --check         exit 1 if stale (CI)
-     node scripts/sync-tokens.mjs --source=<path> read a local sheet instead
+     node scripts/sync-tokens.mjs --check         exit 1 if stale (local gate)
+     node scripts/sync-tokens.mjs --source=<path> read another sheet instead
+                                                  (a URL works too)
 
-   `--source` exists for offline work and for regenerating against a checkout of
-   the design system before it is published to the CDN. It is not a second
-   source of truth: the default is the URL, and `--check` in CI runs without it.
+   WHERE THE DEFAULT SOURCE POINTS, AND WHY IT MOVED. It used to be the CDN URL
+
+       https://cdn.thinktalentws48.click/starterkit/colors_and_type.css
+
+   which starterkit-theme still emits as the DEFAULT preset's legacy alias (see
+   `cdnPaths` in that package's src/emit/cdn.ts). That copy is hand-uploaded,
+   and republishing it is not this package's call to make — reading it as the
+   default source means this package's CI cannot go green until someone with
+   the CDN credentials republishes, which is a publish-ordering deadlock this
+   repo cannot break on its own.
+
+   So the default is now @devopsnext/starterkit-theme's INSTALLED copy —
+   node_modules/@devopsnext/starterkit-theme/presets/think.css — not a sibling
+   checkout. A sibling path (the way scripts/gen-brands.mjs still reads one) is
+   wrong here specifically because THIS package has `.github/workflows/ci.yml`,
+   and `pnpm sync:tokens:check` runs there straight after `pnpm install
+   --frozen-lockfile` — a GitHub Actions runner checks out this one repo, so
+   `../starterkit-theme` never exists on it. node_modules does, because the
+   package is now a devDependency (see package.json) and `--frozen-lockfile`
+   installs it. Reading node_modules over a sibling checkout wins on every
+   count that matters here: it runs in CI, it runs from a bare clone with no
+   sibling repo present, it reads the EXACT version this package pins rather
+   than whatever a sibling working tree happens to have checked out, and it
+   still needs no network — the CDN publish-ordering deadlock stays gone.
+   Point `--source=` at the URL the day the CDN is current, or at a sibling
+   checkout for local iteration against an unpublished theme change.
+
+   The vendored defaults are deliberately Think's values — Think is the default
+   preset, and styles.css matching it is what makes "no brand sheet loaded" and
+   "Think selected" render identically.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { dirname, join, relative, sep } from "node:path";
 
-const DEFAULT_SOURCE = "https://cdn.thinktalentws48.click/starterkit/colors_and_type.css";
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const TARGET = join(ROOT, "styles.css");
 
+/* The DEFAULT preset of @devopsnext/starterkit-theme, resolved through the
+   package's own export map (`./presets/*.css`) so a restructure of its
+   internals cannot silently point this at nothing. Falls back to the plain
+   node_modules path when the package is not resolvable at all — not to
+   change where we read from, only so the existsSync guard below can give a
+   friendlier error than Node's raw MODULE_NOT_FOUND. */
+const PACKAGE_SUBPATH = "@devopsnext/starterkit-theme/presets/think.css";
+const DEFAULT_SOURCE = (() => {
+  try {
+    return createRequire(import.meta.url).resolve(PACKAGE_SUBPATH);
+  } catch {
+    return join(ROOT, "node_modules", "@devopsnext", "starterkit-theme", "presets", "think.css");
+  }
+})();
+
 const sourceArg = process.argv.find((arg) => arg.startsWith("--source="));
+const usingDefaultSource = !sourceArg;
 const SOURCE = sourceArg ? sourceArg.slice("--source=".length) : DEFAULT_SOURCE;
 const isRemote = /^https?:\/\//.test(SOURCE);
+
+/* A machine-specific absolute path must never reach the shipped file, so the
+   generated header names the source the way the repo sees it. For the default
+   source that is doubly true: `require.resolve()` above answers through
+   pnpm's `.pnpm/@devopsnext+starterkit-them_<hash>/…` store, and that hash
+   shifts with the dependency graph — printing it would make `--check` flag
+   drift that is not about a single token changing. The package subpath is
+   the stable, human name for the same file; --source= still gets the
+   relative-path treatment, for a sibling checkout or any other local file. */
+const sourceLabel = isRemote
+  ? SOURCE
+  : usingDefaultSource
+    ? PACKAGE_SUBPATH
+    : relative(ROOT, SOURCE).split(sep).join("/") || SOURCE;
 
 const START = "/* @tokens:start — generated by scripts/sync-tokens.mjs, do not edit */";
 const END = "/* @tokens:end */";
@@ -103,6 +161,14 @@ function selfContained(value, lookup, seen = new Set()) {
   });
 }
 
+if (!isRemote && !existsSync(SOURCE)) {
+  throw new Error(
+    `token sheet missing: ${SOURCE}\n` +
+      "This script reads @devopsnext/starterkit-theme's installed preset sheet by default, so it " +
+      "needs the package installed. Run `pnpm install`, or point --source= at a preset sheet elsewhere.",
+  );
+}
+
 const sheet = isRemote
   ? await fetch(SOURCE).then((res) => {
       if (!res.ok) throw new Error(`${SOURCE} → HTTP ${res.status}`);
@@ -149,7 +215,7 @@ const flipped = seeds.filter((name) => declare(name, darkOf, "") !== declare(nam
 const lightBlock = (indent) => flipped.map((name) => declare(name, lightOf, indent)).join("\n");
 
 const block = `${START}
-/* Source: ${DEFAULT_SOURCE} — regenerate with \`pnpm sync:tokens\`.
+/* Source: ${sourceLabel} — regenerate with \`pnpm sync:tokens\`.
    Each alias is \`var(<host token>, <vendored default>)\`: the host's sheet wins
    whenever it defines the token, these values render the button when it does
    not. Scoped to .ib-btn — this file declares nothing on :root. */
@@ -176,7 +242,14 @@ ${lightBlock("    ")}
 }
 ${END}`;
 
-const next = current.slice(0, head) + block + current.slice(tail + END.length);
+/* The block above is built with \n, but styles.css is CRLF in a Windows
+   checkout (git's core.autocrlf converts on the way out). Splicing LF into a
+   CRLF file leaves `next !== current` no matter what the tokens say — so
+   `--check` reports drift that does not exist and a rewrite churns line
+   endings rather than values. Match whatever the file already uses. */
+const eol = current.includes("\r\n") ? "\r\n" : "\n";
+
+const next = current.slice(0, head) + block.replace(/\n/g, eol) + current.slice(tail + END.length);
 
 if (process.argv.includes("--check")) {
   if (next !== current) {
@@ -186,5 +259,5 @@ if (process.argv.includes("--check")) {
   console.log(`tokens up to date (${seeds.length} aliased, ${flipped.length} flip in light)`);
 } else {
   writeFileSync(TARGET, next);
-  console.log(`synced ${seeds.length} tokens from ${SOURCE} (${flipped.length} flip in light)`);
+  console.log(`synced ${seeds.length} tokens from ${sourceLabel} (${flipped.length} flip in light)`);
 }

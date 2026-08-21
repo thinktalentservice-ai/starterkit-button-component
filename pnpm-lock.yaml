@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@devopsnext/starterkit-theme':
+        specifier: 1.2.0
+        version: 1.2.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@playwright/test':
         specifier: ^1.62.1
         version: 1.62.1
@@ -172,6 +175,21 @@ packages:
   '@csstools/css-tokenizer@3.0.4':
     resolution: {integrity: sha512-Vd/9EVDiu6PPJt9yAh6roZP6El1xHrdvIVGjyBsHR0RYwNHgL7FJPyIIW4fANJNG6FtyZfvlRPpFI4ZM/lubvw==}
     engines: {node: '>=18'}
+
+  '@devopsnext/starterkit-theme@1.2.0':
+    resolution: {integrity: sha512-N4vdsy111gIZFFNnfSgEFsIvvH9o7PVQ8NzBh8H7B3kh6WAEt1F31xVm25z4Aw4AfHAigkdsbqRzoekEcm7k7A==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@mui/material': '>=6'
+      react: '>=18'
+      react-dom: '>=18'
+    peerDependenciesMeta:
+      '@mui/material':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
 
   '@emnapi/core@1.11.1':
     resolution: {integrity: sha512-RSvbQmHzdKzNsLYa/wHrbc3KN4sYLKAdPZxqiM2HATqv/SBk2/ENSHpvXGaLOMcsAyz0poEGqkmmKYG3OWiJEQ==}
@@ -2345,6 +2363,11 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.4
 
   '@csstools/css-tokenizer@3.0.4': {}
+
+  '@devopsnext/starterkit-theme@1.2.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+    optionalDependencies:
+      react: 19.2.6
+      react-dom: 19.2.6(react@19.2.6)
 
   '@emnapi/core@1.11.1':
     dependencies:

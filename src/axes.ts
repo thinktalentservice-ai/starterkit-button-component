@@ -21,6 +21,9 @@ export type ButtonTone =
   | "success"
   | "warning"
   | "danger"
+  | "info"
+  | "accent-green"
+  | "accent-pink"
   | "neutral";
 export type ButtonFill = "solid" | "ghost" | "outline" | "bare" | "translucent";
 export type ButtonShape = "chip" | "pill";
@@ -47,6 +50,9 @@ export const PRESETS = {
   success: { tone: "success", fill: "solid" },
   warning: { tone: "warning", fill: "solid" },
   danger: { tone: "danger", fill: "solid" },
+  info: { tone: "info", fill: "solid" },
+  "accent-green": { tone: "accent-green", fill: "solid" },
+  "accent-pink": { tone: "accent-pink", fill: "solid" },
   ghost: { tone: "neutral", fill: "ghost" },
   text: { tone: "neutral", fill: "bare" },
   pill: { tone: "primary", fill: "outline", shape: "pill" },

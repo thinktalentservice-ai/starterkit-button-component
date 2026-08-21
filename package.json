@@ -1,6 +1,6 @@
 {
   "name": "@devopsnext/starterkit-button-component",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Obsidian design-system Button — token-driven, CSS-styled, zero runtime dependencies.",
   "license": "MIT",
   "type": "module",
@@ -44,6 +44,7 @@
     "react-dom": ">=18"
   },
   "devDependencies": {
+    "@devopsnext/starterkit-theme": "1.2.0",
     "@playwright/test": "^1.62.1",
     "@storybook/addon-a11y": "^10.5.6",
     "@storybook/addon-docs": "^10.5.6",
