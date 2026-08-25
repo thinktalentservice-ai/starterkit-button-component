@@ -41,7 +41,10 @@ type ToneCase = {
 };
 
 const TONES: ToneCase[] = [
-  { tone: "primary", seed: "--primary-text", baseline: { light: "#004d83", dark: "#40aaff" } },
+  /* Moved with think's `#0099FF` -> `#37A3FE` seed; `pnpm sync:tokens` is what
+     rewrites the vendored default this asserts, so a stale row here means the
+     table and styles.css disagree about which preset ships. */
+  { tone: "primary", seed: "--primary-text", baseline: { light: "#1b5686", dark: "#59b3ff" } },
   { tone: "secondary", seed: "--secondary-text", baseline: { light: "#252d39", dark: "#738296" } },
   { tone: "accent", seed: "--accent-text", baseline: { light: "#576328", dark: "#c8e063" } },
   { tone: "success", seed: "--success-text", baseline: { light: "#255925", dark: "#6eba67" } },
@@ -264,11 +267,34 @@ for (const brand of BRAND_IDS) {
 
 /* The two brands must not merely both work — they must DIFFER. Without this, a
    rewrite that emitted the same block twice under two names would satisfy every
-   assertion above. */
+   assertion above.
+
+   IT READS THE FILL, NOT ONLY THE LABEL, AND THAT CHANGED FOR A REASON. This
+   used to compare the nine solid LABEL colours, which was always a proxy and
+   stopped being a valid one the moment think's primary fill was floored: both
+   brands now resolve white on primary, so all nine inks agree and the old
+   assertion failed on two brands that render visibly differently. An ink is a
+   measured OUTPUT of a fill and two different fills are perfectly entitled to
+   arrive at the same one — the fill is the brand, so the fill is what must
+   differ. Label is still in the tuple, so a future divergence there still
+   counts; it is simply no longer the only thing being asked. */
 test("the two brands render differently", async ({ page }) => {
   const read = async (brand: BrandId) => {
     await page.setContent(brandFixtureHtml(brand, "light"));
-    return Promise.all(TONES.map(({ tone }) => labelColor(page, `solid-${tone}`)));
+    return Promise.all(
+      TONES.map(async ({ tone }) => ({
+        fill: await page
+          .locator(`#solid-${tone}`)
+          .evaluate((el) => getComputedStyle(el).backgroundImage),
+        label: await labelColor(page, `solid-${tone}`),
+      })),
+    );
   };
-  expect(await read("think")).not.toEqual(await read("elemetrik"));
+  const think = await read("think");
+  const elemetrik = await read("elemetrik");
+  expect(think).not.toEqual(elemetrik);
+
+  /* And specifically on the FILLS, so this cannot pass on a label difference
+     alone the way the old version could pass on a fill difference alone. */
+  expect(think.map((t) => t.fill)).not.toEqual(elemetrik.map((t) => t.fill));
 });

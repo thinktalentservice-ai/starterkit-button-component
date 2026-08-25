@@ -46,9 +46,9 @@
 .ib-btn {
   --ib-t-fg1: var(--fg1, #f0f2ff);
   --ib-t-fg2: var(--fg2, #8b93b5);
-  --ib-t-primary-text: var(--primary-text, #40aaff);
-  --ib-t-primary-on-solid: var(--primary-on-solid, #0b0f19);
-  --ib-t-primary-channel: var(--primary-channel, 0 153 255);
+  --ib-t-primary-text: var(--primary-text, #59b3ff);
+  --ib-t-primary-on-solid: var(--primary-on-solid, #ffffff);
+  --ib-t-primary-channel: var(--primary-channel, 55 163 254);
   --ib-t-secondary-text: var(--secondary-text, #738296);
   --ib-t-secondary-on-solid: var(--secondary-on-solid, #ffffff);
   --ib-t-secondary-channel: var(--secondary-channel, 100 116 139);
@@ -81,7 +81,7 @@
   --ib-t-btn-ghost-bg-hover: var(--btn-ghost-bg-hover, rgba(255, 255, 255, 0.10));
   --ib-t-radius-chip: var(--radius-chip, 16px);
   --ib-t-radius-pill: var(--radius-pill, 9999px);
-  --ib-t-gradient-primary: var(--gradient-primary, linear-gradient(135deg, var(--primary-solid, #0099ff), var(--primary-solid-hover, #018eed)));
+  --ib-t-gradient-primary: var(--gradient-primary, linear-gradient(135deg, var(--primary-solid, #007acd), var(--primary-solid-hover, #0171bf)));
   --ib-t-gradient-secondary: var(--gradient-secondary, linear-gradient(135deg, var(--secondary-solid, #64748b), var(--secondary-solid-hover, #5d6c82)));
   --ib-t-gradient-accent: var(--gradient-accent, linear-gradient(135deg, var(--accent-solid, #b3d335), var(--accent-solid-hover, #a6c333)));
   --ib-t-gradient-success: var(--gradient-success, linear-gradient(135deg, var(--success-solid, #4caf50), var(--success-solid-hover, #47a24c)));
@@ -102,8 +102,8 @@
 [data-theme="light"] .ib-btn {
   --ib-t-fg1: var(--fg1, #1a1d2e);
   --ib-t-fg2: var(--fg2, #5a6080);
-  --ib-t-primary-text: var(--primary-text, #004d83);
-  --ib-t-primary-channel: var(--primary-channel, 0 108 178);
+  --ib-t-primary-text: var(--primary-text, #1b5686);
+  --ib-t-primary-channel: var(--primary-channel, 39 117 180);
   --ib-t-secondary-text: var(--secondary-text, #252d39);
   --ib-t-secondary-channel: var(--secondary-channel, 62 73 89);
   --ib-t-accent-text: var(--accent-text, #576328);
@@ -136,8 +136,8 @@
   :root:not([data-mui-color-scheme]):not([data-theme]) .ib-btn {
     --ib-t-fg1: var(--fg1, #1a1d2e);
     --ib-t-fg2: var(--fg2, #5a6080);
-    --ib-t-primary-text: var(--primary-text, #004d83);
-    --ib-t-primary-channel: var(--primary-channel, 0 108 178);
+    --ib-t-primary-text: var(--primary-text, #1b5686);
+    --ib-t-primary-channel: var(--primary-channel, 39 117 180);
     --ib-t-secondary-text: var(--secondary-text, #252d39);
     --ib-t-secondary-channel: var(--secondary-channel, 62 73 89);
     --ib-t-accent-text: var(--accent-text, #576328);

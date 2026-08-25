@@ -19,5 +19,13 @@ allowBuilds:
 # Read a publish time with `npm view <pkg> time --json`, NEVER
 # `npm view <pkg> time.1.2.0` — npm splits the field path on the dots and
 # silently returns nothing, which reads as "unpublished".
+#
+# pnpm MERGED THIS INTO A RANGE when 1.3.0 was adopted — it rewrote the 1.2.0
+# entry as `1.2.0 || 1.3.0` rather than replacing it. A range is the one shape
+# an exclusion must never take: it never expires, it keeps covering a version
+# this repo no longer installs, and it pre-approves releases that do not exist
+# yet. Rewritten by hand to the single exact version actually resolved. The
+# host's check-release-age.mjs rejects a range outright for exactly this reason;
+# this repo has no such gate, which is why it is written down here instead.
 minimumReleaseAgeExclude:
-  - '@devopsnext/starterkit-theme@1.2.0' # published 2026-08-21T11:47:29Z
+  - '@devopsnext/starterkit-theme@1.3.0' # published 2026-08-25T13:10:58.895Z
