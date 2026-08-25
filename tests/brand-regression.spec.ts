@@ -50,7 +50,7 @@ const TONES: ToneCase[] = [
   { tone: "success", seed: "--success-text", baseline: { light: "#255925", dark: "#6eba67" } },
   { tone: "warning", seed: "--warning-text", baseline: { light: "#8a5a19", dark: "#feb054" } },
   { tone: "danger", seed: "--danger-text", baseline: { light: "#7a1a2c", dark: "#f86278" } },
-  { tone: "info", seed: "--info-text", baseline: { light: "#00315b", dark: "#3389d6" } },
+  { tone: "info", seed: "--info-text", baseline: { light: "#001c4b", dark: "#4f81cd" } },
   { tone: "accent-green", seed: "--accent-green-text", baseline: { light: "#576328", dark: "#c8e063" } },
   { tone: "accent-pink", seed: "--accent-pink-text", baseline: { light: "#771d3e", dark: "#f26594" } },
 ];

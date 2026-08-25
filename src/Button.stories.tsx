@@ -393,18 +393,25 @@ export const BrandComparison: Story = {
    .ib-btn's `tone` axis publishes as --ib-grad) is always drawn from ONE
    family's own --solid / --solid-hover, so these two have no tone to render
    through; they are painted straight from the token here for discoverability,
-   each with a Think-valued fallback matching the sheet's own default. */
+   each with a Think-valued fallback matching the sheet's own default.
+
+   THESE FALLBACKS ARE HAND-WRITTEN AND NOTHING GATES THEM, which is the one
+   silent-failure surface `sync:tokens` does not cover — it regenerates
+   styles.css, not this file. Both were stale when `info` moved: `--info-solid`
+   was still `#0078d4`, and `--primary-solid` was still the pre-fill-floor
+   `#0099ff` from two releases ago. Re-read them from
+   ../starterkit-theme/presets/think.css whenever a seed moves. */
 const crossFamilyGradients = [
   {
     token: "--gradient-primary-info",
     ink: "--gradient-primary-info-ink",
-    fallback: "linear-gradient(135deg, var(--primary-solid, #0099ff), var(--info-solid, #0078d4))",
+    fallback: "linear-gradient(135deg, var(--primary-solid, #007acd), var(--info-solid, #0058d4))",
     label: "Primary → Info",
   },
   {
     token: "--gradient-primary-accent-pink",
     ink: "--gradient-primary-accent-pink-ink",
-    fallback: "linear-gradient(135deg, var(--primary-solid, #0099ff), var(--accent-pink-solid, #ee4480))",
+    fallback: "linear-gradient(135deg, var(--primary-solid, #007acd), var(--accent-pink-solid, #ee4480))",
     label: "Primary → Accent Pink",
   },
 ] as const;
