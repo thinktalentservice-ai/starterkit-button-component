@@ -242,11 +242,10 @@ for (const brand of BRAND_IDS) {
         expect(stamped).toBe(`"${brand}"`);
       });
 
-      test("solid labels use the brand's measured ink", async ({ page }) => {
+      test("solid labels are white in every tone (2.4.0 product decision)", async ({ page }) => {
         await page.setContent(brandFixtureHtml(brand, scheme));
-        const maps = expectedTokens(brand);
         for (const { tone } of TONES) {
-          const want = hexToRgb(tokenFor(maps, scheme, `--${tone}-on-solid`));
+          const want = hexToRgb("#ffffff");
           const got = parseRgb(await labelColor(page, `solid-${tone}`));
           expect(got, `${brand}/${scheme}/${tone} solid ink`).toEqual(want);
         }

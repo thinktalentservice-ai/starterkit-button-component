@@ -310,10 +310,12 @@
   font-size: 12px;
   min-height: 28px;
 }
+/* md reduced 1px in 2.6.0: font 14 → 13, min-height 40 → 39 (padding unchanged;
+   min-height is what sets the height). */
 .ib-btn[data-size="md"] {
   padding: 10px 20px;
-  font-size: 14px;
-  min-height: 40px;
+  font-size: 13px;
+  min-height: 39px;
 }
 .ib-btn[data-size="lg"] {
   padding: 13px 28px;
@@ -338,19 +340,29 @@
 
 .ib-btn[data-fill="solid"] {
   background-image: var(--ib-grad);
-  /* `--ib-on-grad` is the escape hatch, not a token alias — a caller can still
-     force a different ink for one button. Its own default is no longer a
-     blind #fff guess: it falls to `--ib-on-solid`, the family's MEASURED ink
-     for this exact fill (legible on both the resting and hovered solid), so
-     the button is correct out of the box against a light-first preset instead
-     of needing the override just to be readable. */
-  color: var(--ib-on-grad, var(--ib-on-solid, #fff));
+  /* Every solid label is white, in every tone and brand — a product decision
+     (2.4.0), not a contrast measurement. Through 2.3.0 this fell to
+     `--ib-on-solid`, the family's measured ink, which put near-black on
+     accent / success / warning / danger / accent-green / accent-pink and left
+     the row of solids visually inconsistent. `--ib-on-grad` remains the escape
+     hatch for forcing a different ink on one button. `--ib-on-solid` is still
+     published by each tone but no fill reads it any more. */
+  color: var(--ib-on-grad, #fff);
   border-color: transparent;
-  box-shadow: 0 4px 20px rgb(var(--ib-ch) / 0.4);
+  /* Two layers: a small tone-tinted drop shadow (reduced in 2.5.0 from
+     `0 4px 20px / 0.4`), and a GLOW layer that is OFF by default. The glow is
+     parked, not deleted — set `--ib-btn-glow` (rest) / `--ib-btn-glow-hover`
+     (hover, also drives the outline hover glow) to an alpha to bring it back.
+     The 2.4.0 look was `--ib-btn-glow: 0.4; --ib-btn-glow-hover: 0.5`. */
+  box-shadow:
+    0 2px 6px rgb(var(--ib-ch) / 0.22),
+    0 0 20px rgb(var(--ib-ch) / var(--ib-btn-glow, 0));
 }
 .ib-btn[data-fill="solid"][data-interactive]:hover {
   filter: brightness(1.1);
-  box-shadow: 0 6px 28px rgb(var(--ib-ch) / 0.5);
+  box-shadow:
+    0 3px 10px rgb(var(--ib-ch) / 0.28),
+    0 0 28px rgb(var(--ib-ch) / var(--ib-btn-glow-hover, 0));
 }
 
 .ib-btn[data-fill="ghost"] {
@@ -376,7 +388,8 @@
    unrepresentable. */
 .ib-btn[data-fill="outline"][data-interactive]:hover {
   background-color: rgb(var(--ib-ch) / 0.1);
-  box-shadow: 0 0 14px rgb(var(--ib-ch) / 0.3);
+  /* Pure glow, parked: transparent until `--ib-btn-glow-hover` is set. */
+  box-shadow: 0 0 14px rgb(var(--ib-ch) / var(--ib-btn-glow-hover, 0));
 }
 
 .ib-btn[data-fill="bare"] {
@@ -492,7 +505,7 @@
   /* Base rule's highlighted edge defaults to the solid-fill ink; overridden
      per fill below so translucent gets its own escape hatch instead of
      silently reusing solid's. */
-  border-top-color: var(--ib-on-grad, var(--ib-on-solid, #fff));
+  border-top-color: var(--ib-on-grad, #fff);
   border-radius: 50%;
   animation: ib-btn-spin 0.7s linear infinite;
 }
