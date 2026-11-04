@@ -345,7 +345,7 @@ export const BrandComparison: Story = {
       >
         <Section
           title={`Think vs Elemetrik — ${scheme} scheme`}
-          description="Watch the solid row: its label ink is dark under Think and white under Elemetrik, because --<tone>-on-solid is measured per brand rather than assumed."
+          description="Solid labels are white under both brands (since 2.4.0); the brand shows in the fill and in the outline label colour."
         >
           <div className="ib-story-brands">
             {brands.map(({ id, label }) => (
