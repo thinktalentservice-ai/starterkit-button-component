@@ -28,4 +28,4 @@ allowBuilds:
 # host's check-release-age.mjs rejects a range outright for exactly this reason;
 # this repo has no such gate, which is why it is written down here instead.
 minimumReleaseAgeExclude:
-  - '@devopsnext/starterkit-theme@1.4.0' # published 2026-08-25T13:53:11.698Z
+  - '@devopsnext/starterkit-theme@1.4.5' # published 2026-11-06T05:09:46.822Z

@@ -41,16 +41,16 @@ type ToneCase = {
 };
 
 const TONES: ToneCase[] = [
-  /* Moved with think's `#0099FF` -> `#37A3FE` seed; `pnpm sync:tokens` is what
+  /* Moved with starterkit-theme 1.4.5 (primary `#008AFF`, info `#37A3FE`); `pnpm sync:tokens` is what
      rewrites the vendored default this asserts, so a stale row here means the
      table and styles.css disagree about which preset ships. */
-  { tone: "primary", seed: "--primary-text", baseline: { light: "#1b5686", dark: "#59b3ff" } },
+  { tone: "primary", seed: "--primary-text", baseline: { light: "#00427d", dark: "#399cfe" } },
   { tone: "secondary", seed: "--secondary-text", baseline: { light: "#252d39", dark: "#738296" } },
   { tone: "accent", seed: "--accent-text", baseline: { light: "#576328", dark: "#c8e063" } },
   { tone: "success", seed: "--success-text", baseline: { light: "#255925", dark: "#6eba67" } },
   { tone: "warning", seed: "--warning-text", baseline: { light: "#8a5a19", dark: "#feb054" } },
   { tone: "danger", seed: "--danger-text", baseline: { light: "#7a1a2c", dark: "#f86278" } },
-  { tone: "info", seed: "--info-text", baseline: { light: "#001c4b", dark: "#4f81cd" } },
+  { tone: "info", seed: "--info-text", baseline: { light: "#1b5686", dark: "#59b3ff" } },
   { tone: "accent-green", seed: "--accent-green-text", baseline: { light: "#576328", dark: "#c8e063" } },
   { tone: "accent-pink", seed: "--accent-pink-text", baseline: { light: "#771d3e", dark: "#f26594" } },
 ];
