@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@devopsnext/starterkit-theme':
-        specifier: 1.4.5
-        version: 1.4.5(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        specifier: 1.5.0
+        version: 1.5.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@playwright/test':
         specifier: ^1.62.1
         version: 1.62.1
@@ -176,8 +176,8 @@ packages:
     resolution: {integrity: sha512-Vd/9EVDiu6PPJt9yAh6roZP6El1xHrdvIVGjyBsHR0RYwNHgL7FJPyIIW4fANJNG6FtyZfvlRPpFI4ZM/lubvw==}
     engines: {node: '>=18'}
 
-  '@devopsnext/starterkit-theme@1.4.5':
-    resolution: {integrity: sha512-sbc8xMzjUj5fwXGhuMcvPdgBmbenMmCzt7nzfZpx9IQckV6mXQ5Ztp1jIUgl8654PuFW6LEucXWXSiQjOInFIQ==}
+  '@devopsnext/starterkit-theme@1.5.0':
+    resolution: {integrity: sha512-2TdPKVhuQvy2VXAU/A0Awv46vh3MhzZy77UZYaVV+VBEp6aCVWvaaBjF7n2bC88ePi4zmr8FThzzAVrpTPSAqA==}
     engines: {node: '>=18'}
     peerDependencies:
       '@mui/material': '>=6'
@@ -2364,7 +2364,7 @@ snapshots:
 
   '@csstools/css-tokenizer@3.0.4': {}
 
-  '@devopsnext/starterkit-theme@1.4.5(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+  '@devopsnext/starterkit-theme@1.5.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
     optionalDependencies:
       react: 19.2.6
       react-dom: 19.2.6(react@19.2.6)
