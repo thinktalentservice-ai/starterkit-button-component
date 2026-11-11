@@ -382,8 +382,18 @@
 
 .ib-btn[data-fill="outline"] {
   background-color: transparent;
-  border: 2px solid rgb(var(--ib-ch));
+  /* 1px at 40% of the tone's mark channel — the value signed off on the palette
+     page (computed: rgba(0, 138, 255, 0.4) on think/primary). Through 2.7.0 this
+     was `2px solid rgb(var(--ib-ch))`, and the palette host re-overrode it with
+     `:root:root` to get this look. Label stays var(--ib-accent). */
+  border: 1px solid rgb(var(--ib-ch) / 0.4);
   color: var(--ib-accent);
+}
+/* neutral has no brand channel worth tinting: it draws from the structural
+   outline-border token and reads --fg1, same as the palette page. */
+.ib-btn[data-fill="outline"][data-tone="neutral"] {
+  border-color: var(--ib-t-btn-outline-border);
+  color: var(--ib-t-fg1);
 }
 /* The hover wash is derived from the tone's own channel. The pre-library button
    drew this border from one family's mark and washed it with a different
