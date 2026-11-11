@@ -79,7 +79,6 @@
   --ib-t-btn-outline-border-hover: var(--btn-outline-border-hover, rgba(255, 255, 255, 0.55));
   --ib-t-btn-ghost-bg: var(--btn-ghost-bg, rgba(255, 255, 255, 0.05));
   --ib-t-btn-ghost-bg-hover: var(--btn-ghost-bg-hover, rgba(255, 255, 255, 0.10));
-  --ib-t-radius-chip: var(--radius-chip, 16px);
   --ib-t-radius-pill: var(--radius-pill, 9999px);
   --ib-t-gradient-primary: var(--gradient-primary, linear-gradient(135deg, var(--primary-solid, #008aff), var(--primary-solid-hover, #0180ed)));
   --ib-t-gradient-secondary: var(--gradient-secondary, linear-gradient(135deg, var(--secondary-solid, #64748b), var(--secondary-solid-hover, #5d6c82)));
@@ -325,8 +324,13 @@
 
 /* ── Axis: shape ──────────────────────────────────────────────────────────── */
 
+/* 6px — the think light-scheme button corner signed off on the palette page,
+   in EVERY brand and scheme. Deliberately NOT the theme's `--radius-chip`:
+   that token is 16px in dark and drives chips and badges too, so following it
+   made the same button change shape on a scheme toggle. `--ib-btn-radius` is a
+   package-owned override for a host that wants a different corner. */
 .ib-btn[data-shape="chip"] {
-  border-radius: var(--ib-t-radius-chip);
+  border-radius: var(--ib-btn-radius, 6px);
 }
 .ib-btn[data-shape="pill"] {
   border-radius: var(--ib-t-radius-pill);
@@ -378,8 +382,18 @@
 
 .ib-btn[data-fill="outline"] {
   background-color: transparent;
-  border: 2px solid rgb(var(--ib-ch));
+  /* 1px at 40% of the tone's mark channel — the value signed off on the palette
+     page (computed: rgba(0, 138, 255, 0.4) on think/primary). Through 2.7.0 this
+     was `2px solid rgb(var(--ib-ch))`, and the palette host re-overrode it with
+     `:root:root` to get this look. Label stays var(--ib-accent). */
+  border: 1px solid rgb(var(--ib-ch) / 0.4);
   color: var(--ib-accent);
+}
+/* neutral has no brand channel worth tinting: it draws from the structural
+   outline-border token and reads --fg1, same as the palette page. */
+.ib-btn[data-fill="outline"][data-tone="neutral"] {
+  border-color: var(--ib-t-btn-outline-border);
+  color: var(--ib-t-fg1);
 }
 /* The hover wash is derived from the tone's own channel. The pre-library button
    drew this border from one family's mark and washed it with a different
