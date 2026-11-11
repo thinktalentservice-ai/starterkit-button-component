@@ -25,7 +25,7 @@
   },
   "scripts": {
     "build": "tsc --noEmit && tsup",
-    "build-storybook": "storybook build -o docs --disable-telemetry && node -e \"require('node:fs').writeFileSync('docs/.nojekyll', '')\"",
+    "build-storybook": "storybook build -o storybook-static --disable-telemetry",
     "dev": "tsup --watch",
     "storybook": "storybook dev -p 6006 --no-open --disable-telemetry",
     "gen:brands": "node scripts/gen-brands.mjs",

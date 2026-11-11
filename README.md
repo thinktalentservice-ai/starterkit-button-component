@@ -147,14 +147,14 @@ pnpm verify      # tsc --noEmit && tsc -p tsconfig.playwright.json && vitest run
 pnpm test:brand  # real-browser brand-injection regression suite (Playwright, not part of `verify`)
 pnpm storybook   # local component workshop on port 6006
 pnpm gen:brands  # rewrite .storybook/brands.generated.css from ../starterkit-theme
-pnpm build-storybook  # refresh the GitHub Pages site in docs/
+pnpm build-storybook  # build Storybook to storybook-static/
 ```
 
 `tsc` in strict mode is the type gate; there is no ESLint here on purpose — the version pinned in the consuming starterkit is broken, and a second lint config that disagrees with it is worse than none.
 
 The test suite asserts behaviour and the DOM contract the CSS selects on, not appearance. Rename `data-fill` and every rule in `styles.css` silently stops matching — no type checker catches that, so the tests pin it.
 
-GitHub Pages publishes directly from `main:/docs`. Commit the regenerated `docs/` directory whenever a story or component visual changes.
+Storybook is built and deployed to GitHub Pages by the `Deploy Storybook` workflow on every push to `main`. Nothing to commit.
 
 ## Not in v1
 

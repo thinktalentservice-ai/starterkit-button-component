@@ -151,3 +151,6 @@ playwright-report/
 blob-report/
 playwright/.cache/
 .idea/
+
+# Storybook build output (deployed by GitHub Actions)
+storybook-static/
