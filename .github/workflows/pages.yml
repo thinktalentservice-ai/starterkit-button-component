@@ -1,0 +1,62 @@
+name: Deploy Storybook
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm build-storybook
+
+      # Retired token/tone names must not ship. Names no longer in src/axes.ts
+      # or styles.css go here (moved from ci.yml when docs/ stopped being committed).
+      - name: Storybook build is not on a retired ABI
+        run: |
+          set -e
+          retired='"mint"|"violet"|"amber"|"blue"|ib-light'
+          if grep -rEl "$retired" storybook-static/assets/ >/dev/null 2>&1; then
+            echo "::error::Storybook build still ships retired token or tone names."
+            grep -rEo "$retired" storybook-static/assets/ | sort -u
+            exit 1
+          fi
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: storybook-static
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
