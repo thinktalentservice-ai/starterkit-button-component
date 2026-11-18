@@ -120,5 +120,7 @@ jobs:
             echo "::error::NPM_TOKEN secret is missing from the 'npm-publish' environment."
             exit 1
           fi
-          tarball=$(ls release/*.tgz)
+          # Explicit ./ prefix: npm reads a bare `dir/file.tgz` as a GitHub
+          # `user/repo` shorthand and tries to git-clone it.
+          tarball=$(ls ./release/*.tgz)
           npm publish "$tarball" --access public --provenance --tag "$DIST_TAG"
