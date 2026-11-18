@@ -1,0 +1,124 @@
+name: Release
+
+# Publishing a GitHub Release (tag vX.Y.Z) runs:
+#   guard  -> tag matches package.json, version not yet on npm
+#   build  -> the full CI build (ci.yml), packs the npm tarball + Storybook site
+#   then, only if build succeeded:
+#     deploy-pages -> Storybook to GitHub Pages (skipped if Pages is not set up)
+#     publish-npm  -> the tested tarball to npm (token from the `npm-publish` environment)
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.check.outputs.version }}
+      dist-tag: ${{ steps.check.outputs.dist-tag }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - id: check
+        name: Tag matches package.json and is not yet published
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          set -e
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          if [ "${TAG#v}" != "$version" ]; then
+            echo "::error::Release tag '$TAG' does not match package.json version '$version'. Bump the version and tag v$version."
+            exit 1
+          fi
+          if npm view "$name@$version" version >/dev/null 2>&1; then
+            echo "::error::$name@$version is already on npm. Bump the version before releasing."
+            exit 1
+          fi
+          if [ "$PRERELEASE" = "true" ]; then dist_tag=next; else dist_tag=latest; fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "dist-tag=$dist_tag" >> "$GITHUB_OUTPUT"
+          echo "Releasing $name@$version under dist-tag '$dist_tag'"
+
+  build:
+    needs: guard
+    uses: ./.github/workflows/ci.yml
+
+  pages-status:
+    runs-on: ubuntu-latest
+    permissions:
+      pages: read
+    outputs:
+      enabled: ${{ steps.pages.outputs.enabled }}
+    steps:
+      - id: pages
+        name: Is this repo already published to GitHub Pages (Actions source)?
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          build_type=$(gh api "repos/${{ github.repository }}/pages" --jq '.build_type' 2>/dev/null || true)
+          if [ "$build_type" = "workflow" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            echo "GitHub Pages is enabled with source 'GitHub Actions' -> will deploy."
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::GitHub Pages is not set up with source 'GitHub Actions' (got '${build_type:-none}'). Skipping Pages deploy."
+          fi
+
+  deploy-pages:
+    needs: [build, pages-status]
+    if: needs.pages-status.outputs.enabled == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  publish-npm:
+    needs: [guard, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # npm provenance
+    environment:
+      name: npm-publish
+      url: https://www.npmjs.com/package/@devopsnext/starterkit-button-component/v/${{ needs.guard.outputs.version }}
+    steps:
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: npm-package
+          path: release
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          DIST_TAG: ${{ needs.guard.outputs.dist-tag }}
+        run: |
+          set -e
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::NPM_TOKEN secret is missing from the 'npm-publish' environment."
+            exit 1
+          fi
+          tarball=$(ls release/*.tgz)
+          npm publish "$tarball" --access public --provenance --tag "$DIST_TAG"
