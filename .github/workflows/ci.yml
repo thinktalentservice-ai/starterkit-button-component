@@ -1,12 +1,24 @@
 name: CI
 
+# Runs on every push to any branch and on every pull request.
+# The `build` job is the required status check for merging into main
+# (configure it under Settings -> Rules / Branch protection).
 on:
   push:
-    branches: [main]
+    branches: ['**']
   pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  verify:
+  build:
+    name: build
     runs-on: ubuntu-latest
     steps:
       # v7, not v4. GitHub force-ran v4 on Node 24 and warned that its Node 20
@@ -27,9 +39,49 @@ jobs:
 
       - run: pnpm sync:tokens:check
 
+      # typecheck + typecheck:brand + unit tests + library build (tsc + tsup)
       - run: pnpm verify
 
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
 
       - run: pnpm test:brand
+
+      # Storybook (Vite) build: the same output GitHub Pages ships on release.
+      - run: pnpm build-storybook
+
+      # Retired token/tone names must not ship. Names no longer in src/axes.ts
+      # or styles.css go here.
+      - name: Storybook build is not on a retired ABI
+        run: |
+          set -e
+          retired='"mint"|"violet"|"amber"|"blue"|ib-light'
+          if grep -rEl "$retired" storybook-static/assets/ >/dev/null 2>&1; then
+            echo "::error::Storybook build still ships retired token or tone names."
+            grep -rEo "$retired" storybook-static/assets/ | sort -u
+            exit 1
+          fi
+
+      # Release runs (called from release.yml) hand the built outputs to the
+      # publish jobs, so npm and Pages ship exactly what was built and tested here.
+      - name: Pack npm tarball
+        if: github.event_name == 'release'
+        run: |
+          mkdir -p .release
+          pnpm pack --pack-destination .release
+          ls -l .release
+
+      - name: Upload npm tarball
+        if: github.event_name == 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-package
+          path: .release/*.tgz
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload Pages artifact
+        if: github.event_name == 'release'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: storybook-static
