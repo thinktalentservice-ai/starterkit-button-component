@@ -64,19 +64,21 @@ jobs:
 
       # Release runs (called from release.yml) hand the built outputs to the
       # publish jobs, so npm and Pages ship exactly what was built and tested here.
+      # Packed outside the checkout into a non-dot directory: upload-artifact@v4
+      # skips hidden paths (anything under a `.dir/`) by default.
       - name: Pack npm tarball
         if: github.event_name == 'release'
         run: |
-          mkdir -p .release
-          pnpm pack --pack-destination .release
-          ls -l .release
+          mkdir -p "$RUNNER_TEMP/npm-package"
+          pnpm pack --pack-destination "$RUNNER_TEMP/npm-package"
+          ls -l "$RUNNER_TEMP/npm-package"
 
       - name: Upload npm tarball
         if: github.event_name == 'release'
         uses: actions/upload-artifact@v4
         with:
           name: npm-package
-          path: .release/*.tgz
+          path: ${{ runner.temp }}/npm-package/*.tgz
           if-no-files-found: error
           retention-days: 7
 

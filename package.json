@@ -3,6 +3,14 @@
   "version": "2.8.2",
   "description": "Obsidian design-system Button — token-driven, CSS-styled, zero runtime dependencies.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thinktalentservice-ai/starterkit-button-component.git"
+  },
+  "homepage": "https://thinktalentservice-ai.github.io/starterkit-button-component/",
+  "bugs": {
+    "url": "https://github.com/thinktalentservice-ai/starterkit-button-component/issues"
+  },
   "type": "module",
   "sideEffects": [
     "*.css"
